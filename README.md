@@ -3,9 +3,11 @@
 > **See where things are going — before they get there.**
 > Minecraft **26.2** · Fabric · client-side · MIT
 
+[![build](https://github.com/QunKA777/trajectorylens/actions/workflows/build.yml/badge.svg)](https://github.com/QunKA777/trajectorylens/actions/workflows/build.yml)
 [![Minecraft](https://img.shields.io/badge/Minecraft-26.2-3C8527)](https://www.minecraft.net/)
 [![Loader](https://img.shields.io/badge/Fabric%20Loader-0.19.3%2B-DBD0B4)](https://fabricmc.net/)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/QunKA777/trajectorylens?label=download)](https://github.com/QunKA777/trajectorylens/releases/latest)
 
 TrajectoryLens predicts and renders where dropped items, arrows, TNT, falling blocks and even whole
 explosion chains are going to end up — as translucent, glass-like coloured segments you can see
