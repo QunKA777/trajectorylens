@@ -1,5 +1,7 @@
 # TrajectoryLens
 
+[English](README.md) · [中文](README.zh-CN.md)
+
 > **See where things are going — before they get there.**
 > Minecraft **26.2** · Fabric · client-side · MIT
 
@@ -14,227 +16,263 @@ explosion chains are going to end up — as translucent, glass-like coloured seg
 through terrain. No particles, no block changes, no world edits, and **nothing is ever sent to the
 server**: install it on your client and it works on any server, vanilla or modded.
 
-预测掉落物 / 投掷物 / 爆炸的运动轨迹并以"染色玻璃质感"的半透明彩色线段绘制出来,附命中点、落点、
-因果链与物流诊断。**全部在客户端运行**(无粒子、不放置方块、不改世界、不向服务器发包),连原版服务器
-也能用;同一 jar 装到纯服务端则零副作用,只多一个预测命令。
+## Install
 
-## 安装
+1. Install **Fabric Loader 0.19.3+** and **Fabric API** (26.2 build);
+2. Drop `trajectorylens-1.0.0.jar` into your client `mods/` folder;
+3. In game press **G** to toggle item trajectories, **H+J** to open the control panel, or type `/trajectorylens` (short alias `/tl`).
 
-1. 装 **Fabric Loader 0.19.3+** 与 **Fabric API**(26.2 版);
-2. 把 `trajectorylens-1.0.0.jar` 放进客户端 `mods/`;
-3. 进游戏后按 **G** 开关掉落物轨迹,按 **H+J** 打开控制面板,或输入 `/trajectorylens`(短别名 `/tl`)。
+- **A client-side install is all you need.** Every feature is computed locally; the server does not have
+  to install anything and never receives a single packet from this mod, so there is no permission or
+  anti-cheat interaction. Vanilla servers, other Fabric servers and modpacks all work.
+- Installing the same jar on a **server** only adds `/trajectorylens simulate …` (no rendering).
+  That command has no permission check by default — mind that on public servers.
+- Upgrading from the old `ItemTrajectory` (`itemtrajectory`) build: your settings are migrated
+  automatically from `config/itemtrajectory.json` (watch lists, colours and counters are kept).
+  **Delete the old `itemtrajectory-*.jar`** so the two mods do not load side by side.
 
-- **只装在你自己客户端就够**:所有功能都在本地计算,服务器不需要装、也不会收到任何本模组的数据包,
-  因此不存在额外权限 / 反作弊交互问题;原版服务器、别家 Fabric 服务器、整合服都能用。
-- 同一 jar 装到**服务端**也只多一条 `/trajectorylens simulate …`(无渲染),公开服务器请注意该命令默认无权限限制。
-- 从旧版 `ItemTrajectory`(`itemtrajectory`)升级:配置会自动读取 `config/itemtrajectory.json` 并迁移,
-  观察列表 / 颜色 / 计数器都不会丢;换 jar 时请**删掉旧的 `itemtrajectory-*.jar`**,避免两个 mod 同时加载。
+## Features
 
-## 功能总览
-
-| 分类 | 功能 |
+| Area | What you get |
 |---|---|
-| **掉落物** | 逐 tick 复刻的轨迹预测 · 静止落点与预计静止时间 · 多物品配色 · 观察列表(按物品 id 过滤) |
-| **投掷物** | 箭 / 三叉戟 / 雪球 / 鸡蛋 / 末影珍珠 / 药水 / 火球 的飞行路线与命中目标 · 手持瞄准预测 |
-| **爆炸** | TNT / 苦力怕 / TNT 矿车 引信倒计时与爆炸圈 · **因果链推演**(连锁引爆、被推物品落点、方块后果) |
-| **方块** | 沙子 / 沙砾 / 铁砧 / 钟乳石等**下落方块落点**,正下方有人时标红 |
-| **生物** | 威胁与仇恨指示(锁定 / 警戒 / 未察觉) · 实体行走范围预测 |
-| **物流** | 卡口计数器(速率 / 堆积 / 3 分钟趋势色带)· **漏斗堵塞检测** · 实体普查 · 报告导出 |
-| **丢失** | 失踪溯源(被谁 / 被什么弄没的)· 漏斗高亮 · 物品寿命(即将消失)倒计时 |
-| **交互** | 8 页控制面板 · 纯键盘组合键绑定 · 物品/生物搜索选择器 · 全部设置持久化 |
+| **Dropped items** | Per-tick faithful trajectory prediction · rest markers and ETA · per-item colours · watch list (filter by item id) |
+| **Projectiles** | Arrows / tridents / snowballs / eggs / ender pearls / potions / fireballs with flight path and impact target · held-item aim preview |
+| **Explosions** | Fuse countdown and blast rings for TNT, creepers and TNT minecarts · **causal-chain forecast** (chained detonations, where launched entities land, block consequences) |
+| **Blocks** | Landing prediction for falling blocks (sand, gravel, anvils, dripstone…), highlighted red when somebody is underneath |
+| **Mobs** | Threat / aggro indicator (locked / alert / unaware) · walk-range reachability overlay |
+| **Logistics** | Chokepoint counters (rate / backlog / 3-minute trend) · **hopper jam detection** · entity census · report export |
+| **Lost items** | Provenance of disappearing items · hopper highlight · despawn countdown |
+| **Interaction** | 8-page control panel · pure key-chord binding · search pickers for items and entity types · everything persisted |
 
-## 控制面板
+## Control panel
 
-默认 **H+J** 打开(可用面板里的 按键 页改);顶部两行四列共 8 页,窗口够宽时自动排成两列,永远不需要滚动:
+Opens with **H+J** by default (rebindable on the Keys page). Eight tabs in two rows of four, and it
+switches to a two-column layout on wide windows, so no page ever needs scrolling.
 
-| 页 | 内容 |
+| Page | Contents |
 |---|---|
-| **总览** | 三个总开关 + 一键全开 / 全关(只留面板)+ 当前状态 + 快捷键提示 |
-| **掉落物** | 掉落物轨迹 · 搜索添加物品 · 清空观察 · 当前观察(点行移除)· 失踪溯源 · 失踪标记时长 · 漏斗高亮时长 · 物品寿命提醒 |
-| **投掷物** | 投掷物轨迹 · 手持瞄准预测 · 爆炸预警 |
-| **爆炸推演** | 因果链推演 · 推演层数(1-4)· 击退推演时长(3/6/9/12 秒)· 下落方块落点 |
-| **生物** | 威胁指示 · 行走范围盘 · 预测时长 · 搜索添加生物类型 · 当前观察 |
-| **物流** | 实体普查 · 失踪摘要 · 漏斗堵塞检测 · 堵塞判定时长 · 卡口计数器 · 添加计数器 · 计数器列表(带趋势) |
-| **按键** | 点行 → 直接按新键(可组合,最多 3 个),松手即绑定;Esc 取消,退格清除 |
-| **工具** | 查看颜色/观察列表/开关 · 导出报告 · 原版按键设置 · 失踪记录 · 指令速查 |
+| **Overview** | The three master switches + enable/disable everything + live status + hotkey reminder |
+| **Drops** | Trajectory toggle · search-add item · clear watch list · current watch list (click a row to remove) · lost-item provenance · marker duration · hopper highlight duration · despawn warning |
+| **Projectiles** | Projectile paths · held-item aim preview · blast warning |
+| **Blast** | Causal-chain forecast · chain depth (1-4) · knock-back forecast window (3/6/9/12 s) · falling-block landing |
+| **Mobs** | Threat indicator · walk-range overlay · forecast horizon · search-add entity type · watch list |
+| **Logistics** | Entity census · lost-item summary · hopper jam detection · jam threshold · chokepoint counters · add counter · counter list (with trend) |
+| **Keys** | Click a row, press the new keys (up to 3), release to bind; Esc cancels, Backspace clears |
+| **Tools** | Dump colours/watch lists/switches · export report · vanilla key settings · lost-item log · command cheatsheet |
 
-## 键位与命令
+## Keybinds and commands
 
-| 键 | 行为 |
+| Key | Action |
 |---|---|
-| **G** | 开 / 关掉落物预测轨迹(原版按键设置里可改,搜 `TrajectoryLens`) |
-| **O+P**(同时按住) | 开 / 关实体行走范围盘 |
-| **H+J**(同时按住) | 打开控制面板 |
+| **G** | Toggle drop-trajectory rendering (rebindable in vanilla Controls, search for `TrajectoryLens`) |
+| **O+P** (hold together) | Toggle the walk-range overlay |
+| **H+J** (hold together) | Open the control panel |
 
-> **注意**: `O+P` / `H+J` 是**组合键**,按住不放才算触发,不是按顺序敲。
+> `O+P` and `H+J` are **key chords**: hold the keys down together, do not press them one after another.
 
-根指令 **`/trajectorylens`**,短别名 **`/tl`**(下表一律写全名,把 `/trajectorylens` 换成 `/tl` 效果相同)。
-客户端与服务端注册的是同一棵树:只装客户端时走客户端实现(不发包),服务端也装了本 Mod 时由服务端树接管并回传执行,补全与效果一致。
+The root command is **`/trajectorylens`**, with the short alias **`/tl`** (every row below works with either).
+Client and server register the same tree: with a client-only install the client implementation runs
+(no packets sent), and when the server also has the mod the server tree takes over and replies through
+a custom payload — completions and behaviour are identical.
 
-| 命令 | 用途 |
+| Command | Purpose |
 |---|---|
-| `/trajectorylens toggle` | 开启/关闭轨迹显示(同按 G) |
-| `/trajectorylens target <物品id>` | 把该物品加入观察列表(可省略命名空间,如 `diamond`);重复执行累加,不重置已有项 |
-| `/trajectorylens target clear` | 清空观察列表,恢复跟踪所有物品 |
-| `/trajectorylens color <物品id> <颜色>` | 设某物品轨迹颜色:6 位 `RRGGBB` 或 8 位 `AARRGGBB`,支持 `#`/`0x` 前缀,`auto` 恢复自动配色 |
-| `/trajectorylens colors` / `status` | 列出当前颜色(含自动分配)与开关 / 目标状态 |
-| `/trajectorylens sim(ulate) <x> <y> <z> <vx> <vy> <vz>` | (服务端)对给定初始位置/速度跑一遍预测引擎并输出终点,用于装置设计 |
-| `/trajectorylens projectiles` / `tnt` / `aim` / `chain` / `falling` `on\|off\|toggle` | 投掷物轨迹 / TNT 爆炸预警 / 手持瞄准 / 因果链 / 下落方块 开关 |
-| `/trajectorylens chaindepth [层]` | 因果链推演层数 1-4(不带参数循环) |
-| `/trajectorylens chainhorizon [秒]` | 被炸飞物品/生物的推演时长(不带参数循环 3/6/9/12) |
-| `/trajectorylens threat on\|off\|toggle` | 威胁指示开关 |
-| `/trajectorylens census` | 输出附近实体普查(敌对/动物/物品/经验/投掷物数量与最多的种类) |
-| `/trajectorylens flowcount on\|off\|toggle` | 卡口计数器显示开关 |
-| `/trajectorylens counter add <名字>` | 在准星所指位置放置计数面(物品穿越即计数,给出 /min 与上游堆积) |
-| `/trajectorylens counter remove <名字>` / `clear` / `list` | 移除 / 清空 / 查看计数器 |
-| `/trajectorylens jam on\|off\|toggle` · `jamtime [秒]` | 漏斗堵塞检测开关与判定阈值(默认 6 秒) |
-| `/trajectorylens losttrack on\|off\|toggle` | 失踪溯源开关 |
-| `/trajectorylens lost` / `lost clear` | 输出失踪记录 / 清空记录 |
-| `/trajectorylens losttime [秒]` | 失踪标记显示时长(1-300,不带参数循环 3/5/6/8/10/15/30/60) |
-| `/trajectorylens glowtime [秒]` | 漏斗高亮时长(1-300,不带参数循环 2/3/5/8/10/15/20) |
-| `/trajectorylens despawn on\|off\|toggle` | 物品寿命(即将消失)提醒开关 |
-| `/trajectorylens export` | 把普查 / 计数器(含趋势)/ 堵塞 / 失踪记录导出成 `config/trajectorylens-report-*.txt` |
-| `/trajectorylens range add <实体类型>` | 把实体类型加入行走范围观察(如 `zombie`/`villager`,Tab 可补全) |
-| `/trajectorylens range clear` / `list` / `toggle` | 清空 / 查看 / 开关 行走范围盘 |
-| `/trajectorylens range time <秒>` | 范围预测时长 1-60 秒(默认 5) |
-| `/trajectorylens range color <实体类型> <颜色>` | 设置某类型的范围盘颜色 |
-| `/trajectorylens gui` | 打开控制面板 |
+| `/trajectorylens toggle` | Toggle trajectory rendering (same as G) |
+| `/trajectorylens target <item id>` | Add an item to the watch list (namespace optional, e.g. `diamond`); repeated calls accumulate |
+| `/trajectorylens target clear` | Clear the watch list and track every item again |
+| `/trajectorylens color <item id> <color>` | Item path colour: 6-digit `RRGGBB` or 8-digit `AARRGGBB`, `#`/`0x` prefixes allowed, `auto` restores automatic colours |
+| `/trajectorylens colors` / `status` | List current colours (including automatic ones) and switch/watch state |
+| `/trajectorylens sim(ulate) <x> <y> <z> <vx> <vy> <vz>` | (server) Run the prediction engine for a given start position/velocity and print the end point — handy for designing farms |
+| `/trajectorylens projectiles` / `tnt` / `aim` / `chain` / `falling` `on\|off\|toggle` | Projectile paths / blast warning / aim preview / causal chain / falling blocks |
+| `/trajectorylens chaindepth [layers]` | Causal-chain depth 1-4 (cycles without an argument) |
+| `/trajectorylens chainhorizon [seconds]` | Knock-back forecast window (cycles 3/6/9/12 without an argument) |
+| `/trajectorylens threat on\|off\|toggle` | Threat indicator |
+| `/trajectorylens census` | Print the nearby entity census (hostile/passive/items/XP/projectiles and the most common types) |
+| `/trajectorylens flowcount on\|off\|toggle` | Chokepoint counter overlay |
+| `/trajectorylens counter add <name>` | Place a counting plane where you are looking (items crossing it are counted, with rate and upstream backlog) |
+| `/trajectorylens counter remove <name>` / `clear` / `list` | Remove / clear / list counters |
+| `/trajectorylens jam on\|off\|toggle` · `jamtime [seconds]` | Hopper jam detection and its threshold (default 6 s) |
+| `/trajectorylens losttrack on\|off\|toggle` | Lost-item provenance |
+| `/trajectorylens lost` / `lost clear` | Print / clear the lost-item log |
+| `/trajectorylens losttime [seconds]` | Ghost-marker lifetime (1-300; cycles 3/5/6/8/10/15/30/60) |
+| `/trajectorylens glowtime [seconds]` | Hopper highlight duration (1-300; cycles 2/3/5/8/10/15/20) |
+| `/trajectorylens despawn on\|off\|toggle` | Despawn warning for old items |
+| `/trajectorylens export` | Write census / counters (with trend) / jams / lost items to `config/trajectorylens-report-*.txt` |
+| `/trajectorylens range add <entity type>` | Watch an entity type for the walk-range overlay (e.g. `zombie`, Tab completion) |
+| `/trajectorylens range clear` / `list` / `toggle` | Clear / list / toggle the walk-range overlay |
+| `/trajectorylens range time <seconds>` | Walk-range horizon 1-60 s (default 5) |
+| `/trajectorylens range color <entity type> <color>` | Colour of one entity type in the overlay |
+| `/trajectorylens gui` | Open the control panel |
 
-## 原理与精度
+## How accurate is it?
 
-26.2 的掉落物物理与旧版本差异很大(水中阻力 0.99 / 熔岩 0.95、水中无重力、水流推力 0.014、
-触地按方块摩擦系数、碰撞与反弹内置于 `Entity.move`)。本 Mod 不手写公式,而是创建一个**影子
-ItemEntity**(从不加入世界),逐 tick 调用与服务器相同的引擎方法
-(`updateFluidInteraction → 流体分支/重力 → noPhysics → move → applyEffectsFromBlocks → 拖曳/摩擦`),
-因此只要没有玩家/生物推挤、拾取、合并等外部事件干扰,预测与原版逐 tick 一致。
-被拾取/消失时轨迹立刻清除;外部扰动每 20 tick 或状态漂移时自动重算。
+26.2 changed item physics a lot compared with older versions (water drag 0.99 / lava 0.95, no gravity
+inside water, water flow push 0.014, ground friction straight from the block, collisions and bounces
+inside `Entity.move`). Instead of re-implementing formulas, the mod creates a **shadow `ItemEntity`**
+(never added to the world) and calls the very same engine methods every tick
+(`updateFluidInteraction → fluid branch/gravity → noPhysics → move → applyEffectsFromBlocks → drag/friction`).
+As long as no external event (player pushing, pickup, merging) interferes, the prediction matches
+vanilla tick for tick. Paths are cleared the moment the item is picked up or despawns, and recomputed
+every 20 ticks or whenever the state drifts.
 
-投掷物同理,按各自真实参数复刻:**箭** 重力 0.05 / 空气 0.99 / 水 0.6;**雪球·鸡蛋·珍珠·药水** 0.03 / 0.99 / 0.8;
-**火球** 0.95 阻力 + 每 tick 0.1 加速;**TNT** 0.04 / 0.98 且落地反弹 `(0.7, -0.5, 0.7)`、引信 80 tick;
-**下落方块** 0.04 / 0.98。命中点是方块碰撞射线 + 实体碰撞箱(外扩 0.3)取最近者。
+Projectiles follow the real per-type constants: **arrows** gravity 0.05 / air 0.99 / water 0.6;
+**snowballs, eggs, pearls, potions** 0.03 / 0.99 / 0.8; **fireballs** drag 0.95 plus 0.1 per-tick
+acceleration; **TNT** 0.04 / 0.98 with a `(0.7, -0.5, 0.7)` ground bounce and an 80-tick fuse;
+**falling blocks** 0.04 / 0.98. Impact points come from a block collision ray plus entity hitboxes
+(inflated by 0.3), whichever is closer.
 
-## 轨迹外观
+## What the paths look like
 
-- 轨迹:亮紫 → 深紫渐变的半透明方块段(染色玻璃观感),较厚、不透明度高,**全透视**——
-  走 Gizmo 的 always-on-top 通道渲染,可穿过地形观察整条轨迹;**不用粒子、不放置任何方块**;
-- 落点(静止):绿色半透明圆盘 + `rest ~x.xs` 预计静止时间(物品被拾取/消失即刻清除,不会残留闪烁);
-- 终点原因:燃毁 = 橙点 + `burns`;到达预测上限 / 离开加载 = 紫点。
+- Paths are translucent coloured block segments with a bright-to-dark gradient (stained-glass look),
+  thick and fairly opaque, drawn through the Gizmo always-on-top channel so you can **see them through
+  terrain**. No particles, no blocks placed;
+- Rest marker: a green translucent disc plus `rest ~x.xs` (the predicted time until the item stops);
+  removed immediately when the item is picked up or vanishes — no flickering leftovers;
+- End reasons: burnt = orange dot + `burns`; prediction limit / chunk unload = purple dot.
 
-## 投掷物 · 爆炸 · 因果链
+## Projectiles, explosions and causal chains
 
-- **投掷物轨迹**:追踪 48 格内的箭/光灵箭/三叉戟、雪球/鸡蛋/末影珍珠/药水、恶魂与烈焰人火球与 TNT,
-  在命中点画圆环并标注**命中方块**或**命中:<实体名>**(这一箭会射中谁);
-- **手持瞄准预测**:手持弓/弩/三叉戟/雪球等时实时显示弹道,松开即命中;
-- **末影珍珠**:标出传送落点(原版传送到撞击前一 tick 的位置)、传送自伤 5 点与危险落点判定;
-- **爆炸预警**:点燃的 TNT 显示引信倒计时、预测落点与内外两层爆炸影响圈(内圈 = 威力 4 必破坏范围,
-  外圈 = 2 倍半径伤害/击退区);苦力怕按 `getSwellDir()` 同步的膨胀状态预警;TNT 矿车同样支持;
-- **因果链推演**:从爆炸点继续往下算——
-  - **连锁引爆**:波及范围内已点燃的 TNT、被炸飞后引信仍在的 TNT、TNT 矿车,各按自己的剩余引信排进时间链;
-  - **谁被推到哪里**:被冲击波推出的物品/生物各跑一条抛物线(生物重力 0.08,物品与 TNT 0.04),
-    弧线末端直接写结论:**→ 岩浆!** / **→ 仙人掌** / **→ 虚空** / **→ 水里(安全)** / **→ 摔落 N 点** / **→ 安全落地**;
-  - **方块后果**:被摧毁的 TNT 方块数量、上方**下落方块**是否会砸落、其中几处下面有生物;
-  - 层数(1-4)与推演时长(3/6/9/12 秒)可调,每层最多 8 个分支;每个阶段都做了隔离,出问题只会少画一段。
+- **Projectile paths** for arrows and spectral arrows, tridents, snowballs, eggs, ender pearls,
+  potions, ghast/blaze fireballs and TNT within 48 blocks; the impact point is ringed and labelled with
+  the **block** or **entity name** it will hit (so an arrow tells you who it is going to hit);
+- **Held-item aim preview**: full trajectory while drawing a bow, holding a charged crossbow, charging
+  a trident or holding a throwable;
+- **Ender pearls**: the teleport destination (vanilla teleports to the position one tick before impact),
+  the 5 points of self-damage and a danger verdict for the landing spot;
+- **Blast warning**: primed TNT shows its fuse countdown, predicted landing spot and two blast rings
+  (inner = guaranteed-break radius for power 4, outer = 2x radius damage/knock-back zone); creepers are
+  predicted from their synced swell state; TNT minecarts are supported too;
+- **Causal-chain forecast** keeps going after the blast:
+  - *Chained detonations*: already-primed TNT in range, TNT that gets launched with fuse left, and
+    TNT minecarts, each scheduled by its own remaining fuse;
+  - *Who gets launched where*: pushed items and mobs each get a parabola (mobs gravity 0.08, items and
+    TNT 0.04) that ends with a verdict — **→ lava!**, **→ cactus**, **→ void**, **→ water (safe)**,
+    **→ N blocks of fall damage**, **→ safe landing**;
+  - *Block consequences*: how many TNT blocks will be destroyed, whether falling blocks above will come
+    down, and how many of those would land on a mob;
+  - Depth (1-4) and forecast window (3/6/9/12 s) are configurable; up to 8 branches per layer; every
+    stage is isolated so a failure only loses one part of the drawing.
 
-> 击退与连锁是**近似推演**(真实击退受爆炸接触面、药水效果、抗性影响),标注意图是给出量级与方向,不是逐 tick 精确复刻。
+> Knock-back and chaining are **approximations** (real knock-back depends on blast exposure, potion
+> effects and resistance). The numbers tell you magnitude and direction, not a tick-perfect replay.
 
-## 下落方块落点
+## Falling blocks
 
-沙子 / 沙砾 / 铁砧 / 混凝土粉末 / 钟乳石等下落的方块显示虚线落点轨迹 + 落点圆环,标注方块名与预计落地时间;
-**正下方 2 格内有生物/玩家时整体变红**并写 `砸到 僵尸!` / `砸到你!`。
+Falling sand, gravel, anvils, concrete powder and dripstone show a dashed drop line, a landing ring,
+the block name and the estimated time to impact. If a mob or player stands underneath, everything turns
+**red** and the label reads `hits Zombie!` / `hits you!`.
 
-## 生物:威胁指示与行走范围
+## Mobs: threat indicator and walk range
 
-- **威胁指示**:32 格内敌对生物标注 **§c锁定**(有视线 + 朝向你 + 近距离)/ **§6警戒** / **§7未察觉**,
-  锁定目标连一条红线并显示距离,只显示最近 12 个。依据是"距离 + 追击范围属性 + 视线射线 + 朝向",
-  属客户端推断(真实 AI 目标在服务端),但足够判断"这只僵尸是不是冲我来的";
-- **行走范围盘**:按 **O+P** 开启后,对被观察实体类型显示**极限可达域**——从当前位置按行走速度在未来 N 秒
-  (默认 5s,可调 5/10/15/20/30/60)理论上能到达的所有格子,地面边界描边 + 中心圆环,整数格对齐,可多类型并存(各自配色)。
+- **Threat indicator**: hostile mobs within 32 blocks are labelled **locked** (line of sight + facing you
+  + close), **alert** or **unaware**, with a red line and distance for locked targets (closest 12 only).
+  It is inferred on the client (real AI targets live on the server) from distance, follow-range
+  attribute, line-of-sight ray and facing — good enough to answer "is that zombie coming for me?";
+- **Walk-range overlay** (**O+P**): the theoretical reachable area of a watched entity type over the next
+  N seconds (default 5 s, options 5/10/15/20/30/60), drawn as ground outlines plus a centre ring,
+  aligned to integer block edges, with per-type colours for multiple types at once.
 
-## 物流:计数器、堵塞与普查
+## Logistics: counters, jams and census
 
-- **卡口计数器**:在准星处放 3x3 虚拟计数面(法线跟随朝向),物品穿越即计数,显示 **最近 1 分钟速率**、
-  **5 分钟均值**、**上游 8 格堆积数**,并保留最近 3 分钟**趋势色带** `▁▂▄▆█` 与 ↑/↓ 趋势——用来判断
-  "这条水道 / 漏斗线是不是变慢了";
-- **漏斗堵塞检测**:物品**静止**在漏斗上超过阈值(默认 6 秒)即框出:
-  **红框 = 堵塞**(下游满 / 分类机卡住 / 根本吸不进去,框上写 `堵塞 N 件 已 8.4s <物品名>`),
-  **蓝框 = 红石锁定**(该漏斗 `enabled=false`,是你自己关的,不算故障)。判定用原版吸取体积
-  (`x..x+1, y+0.1875..y+1.5, z..z+1`)与 `enabled` 属性,和游戏行为一致;漏斗矿车同样识别;
-- **实体普查**:附近实体总数、敌对 / 动物 / 其他生物、物品 / 经验球 / 投掷物数量与最多的 6 种类型,
-  物品 >200 或敌对 >60(接近刷怪上限)时给出提示——判断"刷怪塔为什么变慢";
+- **Chokepoint counters**: place a 3x3 virtual counting plane where you look (normal follows your
+  facing), items crossing it are counted; shows the **last minute rate**, the **5-minute average**, the
+  **upstream backlog within 8 blocks** and a **3-minute trend sparkline** `▁▂▄▆█` with an ↑/↓ arrow —
+  perfect for "is this water channel or hopper line slowing down?";
+- **Hopper jam detection**: an item that stays **motionless** on a hopper for longer than the threshold
+  (default 6 s) is boxed: **red = jammed** (destination full, sorter stuck, item can never be taken;
+  labelled `jammed 3 items 8.4s <item>`), **blue = redstone-locked** (the hopper has `enabled=false`,
+  i.e. you switched it off on purpose). Detection uses the vanilla suck volume
+  (`x..x+1, y+0.1875..y+1.5, z..z+1`) and the `enabled` property, so it agrees with the game; hopper
+  minecarts are recognised as well;
+- **Entity census**: totals plus hostile / passive / other, items / XP orbs / projectiles and the six
+  most common types, with a warning when items exceed 200 or hostiles approach the mob cap — the fastest
+  way to answer "why did my farm slow down?".
 
-## 丢失的物品:失踪溯源 · 漏斗高亮 · 寿命提醒
+## Lost items: provenance, hopper highlight, despawn warning
 
-- **失踪溯源**记录附近掉落物**为什么消失**:被玩家拾取、**被漏斗 / 漏斗矿车吸走**、岩浆 / 火焰 / 仙人掌销毁、
-  被爆炸摧毁、合并堆叠、超时消失(5 分钟)、掉入虚空等,统计在物流页顶部给出摘要,消失位置留一个
-  **幽灵标记**(颜色随原因变化,默认 6 秒淡出);
-- **漏斗判定按原版几何来**:物品最后位置落在漏斗吸取体积内(±0.35 容差),或从漏斗上方 ≤3 格直直掉进去,
-  就归因为**被漏斗吸走**;红石锁住的漏斗**不算**。判定顺序是 岩浆/火焰/仙人掌/爆炸 → **漏斗** → 玩家拾取 →
-  超时 → 合并 → 未知,所以"玩家站在漏斗旁边"不会再被误报成被玩家捡走;
-- **漏斗高亮**:吸走物品的漏斗高亮 **默认 5 秒**、颜色由亮到淡渐变,期间再次吸入会**重置计时**,
-  一眼看出"东西到底进了哪个漏斗";时长可在面板 / `glowtime` 调整;
-- **物品寿命提醒**:原版掉落物 5 分钟后消失,客户端看不到真实计时器,因此用**本客户端持续观察到的时长**:
-  同一物品在视野内待满 4 分半后头顶出现琥珀倒计时 `≤30s 消失`,剩不到 30 秒变红并在聊天栏提醒一次;
-- **报告导出**:`/trajectorylens export` 把普查、全部计数器(速率 / 趋势 / 累计)、堵塞情况、失踪记录写成
-  `config/trajectorylens-report-<时间戳>.txt`,隔几天导一份就能对比农场是否退化。
+- **Provenance** records why a nearby item disappeared: picked up by a player, **sucked by a hopper or
+  hopper minecart**, destroyed by lava / fire / cactus, destroyed by an explosion, merged into a stack,
+  despawned after five minutes, or fell into the void. The logistics page shows a summary and a **ghost
+  marker** is left at the spot (colour per reason, fades out after 6 s by default);
+- **Hopper attribution follows the vanilla geometry**: if the item's last position is inside a hopper's
+  suck volume (0.35 tolerance) or it was dropping straight into one from up to 3 blocks above, it is
+  attributed to that hopper; redstone-locked hoppers are excluded. The order is lava/fire/cactus/blast →
+  **hopper** → player pickup → despawn → merge → unknown, so "player standing next to a hopper" is no
+  longer mis-reported as a player pickup;
+- **Hopper highlight**: the hopper that swallowed an item glows for **5 s** by default, fading from
+  bright to dim, and **the timer resets on every new pickup** — you can see exactly which hopper is
+  eating your items. Duration is configurable in the panel or with `glowtime`;
+- **Despawn warning**: vanilla items disappear after five minutes and the client cannot see the real
+  timer, so the mod uses **the time this client has watched the item**: after four and a half minutes an
+  amber countdown `≤30s` appears above it, turns red below 30 seconds and prints a single chat warning;
+- **Report export**: `/trajectorylens export` writes the census, all counters (rate, trend, totals),
+  jams and the lost-item log to `config/trajectorylens-report-<timestamp>.txt`, so you can export one
+  every few days and compare farm throughput.
 
-## 联机时"客户端独装"能看到什么
+## What a client-only install can see in multiplayer
 
-| 能做 | 看不到 / 只能推断 |
+| Works | Limited to |
 |---|---|
-| 全部轨迹/预测/高亮/面板/指令(纯本地执行,不发给服务器) | 只能看到**服务器同步给你的实体**:超出实体跟踪距离或未加载区块里的掉落物看不到 |
-| 高度、方块、流体、漏斗 `enabled` 状态等方块数据 | 别人的背包、箱子内容、漏斗里到底装了多少(服务器不发) |
-| 客户端自己观察出的消失原因(漏斗/岩浆/超时/虚空…都准) | **别的玩家捡走**的东西只能标"原因未知" |
-| 物品寿命倒计时(按你看到的时长推算,是真实 5 分钟的下界) | 物品真实 age / 引信等服务器私有字段(用观察值代替) |
+| Every trajectory, prediction, highlight, panel and command (all local, nothing sent to the server) | Only entities the server sends you: items beyond entity-tracking range or in unloaded chunks are invisible |
+| Block, fluid and hopper `enabled` state (the client has the chunk data) | Other players' inventories, chest contents, how full a hopper actually is |
+| Disappearance reasons the client can observe (hopper, lava, despawn, void…) | Items picked up by **another player** can only be reported as "unknown" |
+| Despawn countdown (derived from the observed age — a lower bound on the real 5 minutes) | Server-private fields such as the real item age or fuse (observed values are used instead) |
 
-> 想让"别人扔的东西 / 远处的东西"也进预测,才需要服务端也装本 Mod(设计文档里的二期方案 B:服务端权威轨迹广播)。
+> Predicting items thrown by other players, or items far away, would need the mod on the server too
+> (the "server-authoritative broadcast" phase 2 in the design document).
 
-## 从源码构建
+## Building from source
 
-只需要 **JDK 25**;Gradle 用仓库自带的 wrapper(首次运行会自动下载 Gradle 9.5.1)。
+All you need is **JDK 25**; the bundled Gradle wrapper downloads Gradle 9.5.1 on first run.
 
 ```bash
-./gradlew build        # Windows: gradlew.bat build  → build/libs/trajectorylens-1.0.0.jar
-./gradlew test         # 纯逻辑单测(路径抽稀 / 颜色工具)
-./gradlew genSources   # (可选)生成 26.2 反编译源码,方便查 API
+./gradlew build        # Windows: gradlew.bat build  -> build/libs/trajectorylens-1.0.0.jar
+./gradlew test         # pure-logic unit tests (path decimation / colour helpers)
+./gradlew genSources   # optional: decompiled 26.2 sources for API reference
 ```
 
-> 26.2 起游戏不再混淆(Yarn 已停更),Loom 1.17 直接按官方命名编译,依赖写 `implementation`;
-> 需要 Fabric Loader ≥ 0.19.3、Fabric API 0.160.0+26.2、Java 25。
+> Minecraft 26.2 is unobfuscated (Yarn stopped at 1.21.11), so Loom 1.17 compiles against the official
+> names and dependencies are declared with plain `implementation`; you need Fabric Loader ≥ 0.19.3,
+> Fabric API 0.160.0+26.2 and Java 25.
 
-## 目录结构
+## Project layout
 
 ```
 trajectorylens/
-├── src/main/java/dev/soityy/trajectorylens/        common(双端安全)
-│   ├── TrajectoryLensMod.java                      入口 + 服务端指令树(payload 转发)
-│   ├── physics/                                    影子实体预测引擎(逐 tick 复刻原版)
-│   ├── network/TargetPayload.java                  服务端 → 客户端 设置包
-│   └── util/PathTools.java                         路径抽稀 / 颜色工具(带单测)
+├── src/main/java/dev/soityy/trajectorylens/        common (safe on both sides)
+│   ├── TrajectoryLensMod.java                      entry point + server command tree (payload relay)
+│   ├── physics/                                    shadow-entity prediction engine (vanilla per tick)
+│   ├── network/TargetPayload.java                  server -> client settings payload
+│   └── util/PathTools.java                         path decimation / colour helpers (unit tested)
 ├── src/client/java/dev/soityy/trajectorylens/client/
-│   ├── TrajectoryLensClient.java                   客户端入口: 注册 tracker / renderer / 配置
-│   ├── track/                                      追踪与仿真(掉落物、投掷物、TNT、因果链、物流、失踪溯源)
-│   ├── render/                                     6 个 Gizmo 渲染器(轨迹/范围/投掷物/流量/威胁/失踪)
-│   ├── ui/                                         控制面板、搜索选择器、配置持久化、组合键、报告导出
-│   └── command/ClientCommands.java                 纯客户端指令回退(服务端没装也能用)
-├── src/test/java/dev/soityy/trajectorylens/        JUnit 单测
+│   ├── TrajectoryLensClient.java                   client entry point: trackers, renderers, config
+│   ├── track/                                      tracking and simulation (items, projectiles, TNT, chains, logistics, provenance)
+│   ├── render/                                     6 Gizmo renderers (paths, ranges, projectiles, flow, threats, lost items)
+│   ├── ui/                                         control panel, search picker, config, chords, report export
+│   └── command/ClientCommands.java                 client-side command fallback (works without the server mod)
+├── src/test/java/dev/soityy/trajectorylens/        JUnit tests
 ├── src/main/resources/fabric.mod.json + assets/trajectorylens/icon.png
-├── docs/DESIGN-zh.md                               设计方案、版本核查与决策记录
-├── .github/workflows/build.yml                     CI: JDK 25 构建 + 上传 jar
+├── docs/DESIGN-zh.md                               design notes, version research and decisions (Chinese)
+├── .github/workflows/build.yml                     CI: JDK 25 build + artifact upload
 ├── CHANGELOG.md / LICENSE / README.md
-└── gradlew(.bat) / gradle/wrapper/                 自带 Gradle wrapper
+└── gradlew(.bat) / gradle/wrapper/                 bundled Gradle wrapper
 ```
 
-## 已知限制
+## Known limitations
 
-- 玩家 / 生物走位推挤、物品合并 / 拾取无法预知:对应轨迹实时重算或消失;
-- 未加载区块处预测终止(真实物品在那里同样停摆);
-- 别的玩家捡走的东西、容器内容等服务器私有信息客户端拿不到,只能推断或标"未知";
-- 玻璃观感来自半透明填充 Gizmo,默认走 always-on-top 通道(可透过地形看到);
-- 面板按 GUI 缩放自动排成 1 列 / 2 列,极小的窗口下个别行可能被挤掉,建议 GUI 缩放 ≥ 2。
+- Player/mob pushing, item merging and pickups cannot be predicted: affected paths recompute or vanish;
+- Prediction stops at unloaded chunks (the real item stops there too);
+- Items picked up by other players and container contents are server-private, so they are inferred or
+  reported as unknown;
+- The glass look comes from translucent filled Gizmos drawn on the always-on-top channel (visible
+  through terrain by design);
+- The panel switches between a one- and two-column layout based on GUI scale; on very small windows a
+  row may be clipped, so a GUI scale of 2 or more is recommended.
 
-## 许可与致谢
+## License and credits
 
-- 作者 **soityy** · 许可证 **MIT**(见 [LICENSE](LICENSE));
-- 版本历史见 [CHANGELOG.md](CHANGELOG.md),设计取舍见 [docs/DESIGN-zh.md](docs/DESIGN-zh.md);
-- 26.2 起游戏不再混淆(Yarn 停更),本项目直接按官方命名编译,不含 Mixin、不改动任何原版类;
-- 欢迎 issue / PR:<https://github.com/QunKA777/trajectorylens>。
+- Author **soityy** · MIT license (see [LICENSE](LICENSE));
+- Release history in [CHANGELOG.md](CHANGELOG.md), design decisions in [docs/DESIGN-zh.md](docs/DESIGN-zh.md) (Chinese);
+- Minecraft 26.2 is unobfuscated, so this project compiles against the official names, contains **no
+  Mixin** and modifies no vanilla class;
+- Issues and PRs are welcome: <https://github.com/QunKA777/trajectorylens>.
