@@ -258,6 +258,15 @@ trajectorylens/
 └── gradlew(.bat) / gradle/wrapper/                 bundled Gradle wrapper
 ```
 
+## Languages
+
+The in-game interface follows your game language: `assets/trajectorylens/lang/en_us.json` provides
+English, `zh_cn.json` the Chinese originals, and any other language falls back to English. The panel,
+the search pickers and every chat message are translated today; the labels drawn on top of the world
+follow in an upcoming update. Translation keys are the Chinese source strings (`gettext` style), so a
+missing entry can never render as a raw key — it simply shows the Chinese text. Pull requests adding
+`assets/trajectorylens/lang/<locale>.json` are very welcome.
+
 ## Known limitations
 
 - Player/mob pushing, item merging and pickups cannot be predicted: affected paths recompute or vanish;

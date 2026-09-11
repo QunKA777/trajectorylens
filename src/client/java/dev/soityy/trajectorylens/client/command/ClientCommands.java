@@ -6,6 +6,7 @@ import dev.soityy.trajectorylens.client.track.OverlayState;
 import dev.soityy.trajectorylens.client.track.ProjectileOverlay;
 import dev.soityy.trajectorylens.client.track.ThreatOverlay;
 import dev.soityy.trajectorylens.client.track.WalkRangeOverlay;
+import dev.soityy.trajectorylens.client.Lang;
 import dev.soityy.trajectorylens.client.TrajectoryLensClient;
 import dev.soityy.trajectorylens.client.ui.Report;
 import dev.soityy.trajectorylens.client.ui.SettingsIO;
@@ -69,7 +70,7 @@ public final class ClientCommands {
                 })
                 .then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("clear").executes(ctx -> {
                     TrajectoryLensClient.loot().clear();
-                    ctx.getSource().sendFeedback(Component.literal("[TrajectoryLens] 失踪记录已清空"));
+                    ctx.getSource().sendFeedback(Component.literal(Lang.tr("[TrajectoryLens] 失踪记录已清空")));
                     return 1;
                 })));
             root.then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("threat")
@@ -93,9 +94,9 @@ public final class ClientCommands {
             root.then(switchNode("jam", TrajectoryLensClient.flow(), state, ranges, projectiles, flow));
             root.then(switchNode("despawn", TrajectoryLensClient.loot(), state, ranges, projectiles, flow));
             root.then(switchNode("falling", TrajectoryLensClient.projectiles(), state, ranges, projectiles, flow));
-            root.then(lostTimeTree("jamtime", "堵塞判定时长", state, ranges, projectiles, flow, false));
-            root.then(lostTimeTree("losttime", "失踪标记显示", state, ranges, projectiles, flow, true));
-            root.then(lostTimeTree("glowtime", "漏斗高亮时长", state, ranges, projectiles, flow, false));
+            root.then(lostTimeTree("jamtime", Lang.tr("堵塞判定时长"), TimeKind.JAM, state, ranges, projectiles, flow));
+            root.then(lostTimeTree("losttime", Lang.tr("失踪标记显示"), TimeKind.MARKER, state, ranges, projectiles, flow));
+            root.then(lostTimeTree("glowtime", Lang.tr("漏斗高亮时长"), TimeKind.GLOW, state, ranges, projectiles, flow));
             root.then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("chaindepth")
                 .executes(ctx -> chainOption(ctx.getSource(), state, ranges, projectiles, flow, -1, true))
                 .then(RequiredArgumentBuilder.<FabricClientCommandSource, Integer>argument("layers", IntegerArgumentType.integer(1, 4))
@@ -110,8 +111,8 @@ public final class ClientCommands {
                 var f = Report.write(Report.lines(state, ranges, projectiles, flow, TrajectoryLensClient.census(),
                     TrajectoryLensClient.threats(), TrajectoryLensClient.loot()));
                 ctx.getSource().sendFeedback(Component.literal(f != null
-                    ? "[TrajectoryLens] 报告已写入 " + f.getName()
-                    : "[TrajectoryLens] 报告写入失败"));
+                    ? Lang.tr("[TrajectoryLens] 报告已写入 ") + f.getName()
+                    : Lang.tr("[TrajectoryLens] 报告写入失败")));
                 return 1;
             }));
             root.then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("flowcount")
@@ -230,7 +231,7 @@ public final class ClientCommands {
         LootTracker loot = TrajectoryLensClient.loot();
         boolean value = on != null ? on : !loot.enabled();
         loot.setEnabled(value);
-        src.sendFeedback(Component.literal("[TrajectoryLens] 失踪溯源 -> " + (value ? "开" : "关")));
+        src.sendFeedback(Component.literal(Lang.tr("[TrajectoryLens] 失踪溯源 -> ") + (value ? Lang.tr("开") : Lang.tr("关"))));
         return 1;
     }
 
@@ -239,7 +240,7 @@ public final class ClientCommands {
         boolean value = on != null ? on : !threats.enabled();
         threats.setEnabled(value);
         SettingsIO.snapshot(state, ranges, proj, flow, threats, TrajectoryLensClient.loot()).save();
-        src.sendFeedback(Component.literal("[TrajectoryLens] 威胁指示 -> " + (value ? "开" : "关")));
+        src.sendFeedback(Component.literal(Lang.tr("[TrajectoryLens] 威胁指示 -> ") + (value ? Lang.tr("开") : Lang.tr("关"))));
         return 1;
     }
 
@@ -248,7 +249,7 @@ public final class ClientCommands {
         boolean value = on != null ? on : !proj.aimEnabled();
         proj.setAim(value);
         SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-        src.sendFeedback(Component.literal("[TrajectoryLens] 手持瞄准预测 -> " + (value ? "开" : "关")));
+        src.sendFeedback(Component.literal(Lang.tr("[TrajectoryLens] 手持瞄准预测 -> ") + (value ? Lang.tr("开") : Lang.tr("关"))));
         return 1;
     }
 
@@ -269,60 +270,68 @@ public final class ClientCommands {
         String label;
         boolean value;
         if (target instanceof FlowTracker f) {
-            label = "漏斗堵塞检测";
+            label = Lang.tr("漏斗堵塞检测");
             value = on != null ? on : !f.jamEnabled();
             f.setJam(value);
         } else if (target instanceof LootTracker l) {
-            label = "物品寿命提醒";
+            label = Lang.tr("物品寿命提醒");
             value = on != null ? on : !l.despawnWarnEnabled();
             l.setDespawnWarn(value);
         } else {
-            label = "下落方块落点";
+            label = Lang.tr("下落方块落点");
             value = on != null ? on : !proj.fallingEnabled();
             proj.setFalling(value);
         }
         SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-        src.sendFeedback(Component.literal("[TrajectoryLens] " + label + " -> " + (value ? "开" : "关")));
+        src.sendFeedback(Component.literal("[TrajectoryLens] " + label + " -> " + (value ? Lang.tr("开") : Lang.tr("关"))));
         return 1;
     }
 
-    /** /trajectorylens losttime [秒] | glowtime [秒] -- how long lost-item markers / hopper highlights last. */
-    private static LiteralArgumentBuilder<FabricClientCommandSource> lostTimeTree(String name, String label,
-        OverlayState state, WalkRangeOverlay ranges, ProjectileOverlay proj, FlowTracker flow, boolean marker) {
+    /** Which "duration" setting a time command edits. */
+    private enum TimeKind { MARKER, GLOW, JAM }
+
+    /** /trajectorylens losttime [秒] | glowtime [秒] | jamtime [秒] -- how long markers, hopper highlights and jam detection last. */
+    private static LiteralArgumentBuilder<FabricClientCommandSource> lostTimeTree(String name, String label, TimeKind kind,
+        OverlayState state, WalkRangeOverlay ranges, ProjectileOverlay proj, FlowTracker flow) {
         return LiteralArgumentBuilder.<FabricClientCommandSource>literal(name)
-            .executes(ctx -> lostTime(ctx.getSource(), label, -1, state, ranges, proj, flow, marker))
+            .executes(ctx -> lostTime(ctx.getSource(), label, kind, -1, state, ranges, proj, flow))
             .then(RequiredArgumentBuilder.<FabricClientCommandSource, Integer>argument("seconds", IntegerArgumentType.integer(1, 300))
-                .executes(ctx -> lostTime(ctx.getSource(), label, IntegerArgumentType.getInteger(ctx, "seconds"),
-                    state, ranges, proj, flow, marker)));
+                .executes(ctx -> lostTime(ctx.getSource(), label, kind, IntegerArgumentType.getInteger(ctx, "seconds"),
+                    state, ranges, proj, flow)));
     }
 
-    private static int lostTime(FabricClientCommandSource src, String label, int seconds,
-                                OverlayState state, WalkRangeOverlay ranges, ProjectileOverlay proj, FlowTracker flow, boolean marker) {
-        if (label.startsWith("堵塞")) {
-            if (seconds > 0) {
-                flow.setJamSeconds(seconds);
-            } else {
-                flow.cycleJamSeconds();
-            }
-            SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-            src.sendFeedback(Component.literal("[TrajectoryLens] " + label + " -> " + flow.jamSeconds() + " 秒"));
-            return 1;
-        }
+    private static int lostTime(FabricClientCommandSource src, String label, TimeKind kind, int seconds,
+                                OverlayState state, WalkRangeOverlay ranges, ProjectileOverlay proj, FlowTracker flow) {
         LootTracker loot = TrajectoryLensClient.loot();
-        if (seconds > 0) {
-            if (marker) {
-                loot.setMarkerSeconds(seconds);
-            } else {
-                loot.setGlowSeconds(seconds);
+        int now;
+        switch (kind) {
+            case MARKER -> {
+                if (seconds > 0) {
+                    loot.setMarkerSeconds(seconds);
+                } else {
+                    loot.cycleMarkerSeconds();
+                }
+                now = loot.markerSeconds();
             }
-        } else if (marker) {
-            loot.cycleMarkerSeconds();
-        } else {
-            loot.cycleGlowSeconds();
+            case GLOW -> {
+                if (seconds > 0) {
+                    loot.setGlowSeconds(seconds);
+                } else {
+                    loot.cycleGlowSeconds();
+                }
+                now = loot.glowSeconds();
+            }
+            default -> {
+                if (seconds > 0) {
+                    flow.setJamSeconds(seconds);
+                } else {
+                    flow.cycleJamSeconds();
+                }
+                now = flow.jamSeconds();
+            }
         }
         SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), loot).save();
-        src.sendFeedback(Component.literal("[TrajectoryLens] " + label + " -> "
-            + (marker ? loot.markerSeconds() : loot.glowSeconds()) + " 秒"));
+        src.sendFeedback(Component.literal("[TrajectoryLens] " + Lang.tr(label) + " -> " + now + " " + Lang.tr("秒")));
         return 1;
     }
 
@@ -343,8 +352,8 @@ public final class ClientCommands {
             }
         }
         SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-        src.sendFeedback(Component.literal("[TrajectoryLens] " + (depth ? "因果链层数" : "击退推演时长") + " -> "
-            + (depth ? proj.chainDepth() + " 层" : proj.chainHorizonSeconds() + " 秒")));
+        src.sendFeedback(Component.literal("[TrajectoryLens] " + (depth ? Lang.tr("因果链层数") : Lang.tr("击退推演时长")) + " -> "
+            + (depth ? proj.chainDepth() + Lang.tr(" 层") : proj.chainHorizonSeconds() + Lang.tr(" 秒"))));
         return 1;
     }
 
@@ -353,7 +362,7 @@ public final class ClientCommands {
         boolean value = on != null ? on : !proj.chainEnabled();
         proj.setChain(value);
         SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-        src.sendFeedback(Component.literal("[TrajectoryLens] 因果链推演 -> " + (value ? "开" : "关")));
+        src.sendFeedback(Component.literal(Lang.tr("[TrajectoryLens] 因果链推演 -> ") + (value ? Lang.tr("开") : Lang.tr("关"))));
         return 1;
     }
 
@@ -368,7 +377,7 @@ public final class ClientCommands {
                 };
                 flow.setCounters(on);
                 SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-                ctx.getSource().sendFeedback(Component.literal("[TrajectoryLens] 卡口计数器 -> " + (on ? "开" : "关")));
+                ctx.getSource().sendFeedback(Component.literal(Lang.tr("[TrajectoryLens] 卡口计数器 -> ") + (on ? Lang.tr("开") : Lang.tr("关"))));
                 return 1;
             });
     }
@@ -386,7 +395,7 @@ public final class ClientCommands {
                         return 0;
                     }
                     SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-                    ctx.getSource().sendFeedback(Component.literal("[TrajectoryLens] 已添加计数器: " + name + " (准星处)"));
+                    ctx.getSource().sendFeedback(Component.literal(Lang.tr("[TrajectoryLens] 已添加计数器: ") + name + Lang.tr(" (准星处)")));
                     return 1;
                 })));
         tree.then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("remove")
@@ -395,13 +404,13 @@ public final class ClientCommands {
                     String name = StringArgumentType.getString(ctx, "name");
                     boolean ok = flow.removeCounter(name);
                     SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-                    ctx.getSource().sendFeedback(Component.literal("[TrajectoryLens] " + (ok ? "已移除 " + name : "没有 " + name)));
+                    ctx.getSource().sendFeedback(Component.literal("[TrajectoryLens] " + (ok ? Lang.tr("已移除 ") + name : Lang.tr("没有 ") + name)));
                     return ok ? 1 : 0;
                 })));
         tree.then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("clear").executes(ctx -> {
             flow.clearCounters();
             SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
-            ctx.getSource().sendFeedback(Component.literal("[TrajectoryLens] 已清空计数器"));
+            ctx.getSource().sendFeedback(Component.literal(Lang.tr("[TrajectoryLens] 已清空计数器")));
             return 1;
         }));
         tree.then(LiteralArgumentBuilder.<FabricClientCommandSource>literal("list").executes(ctx -> {
@@ -430,7 +439,7 @@ public final class ClientCommands {
                     }
                     SettingsIO.snapshot(state, ranges, proj, flow, TrajectoryLensClient.threats(), TrajectoryLensClient.loot()).save();
                     ctx.getSource().sendFeedback(Component.literal("[TrajectoryLens] "
-                        + (isProjectiles ? "投掷物轨迹" : "TNT 爆炸预测") + " -> " + (on ? "开" : "关")));
+                        + (isProjectiles ? Lang.tr("投掷物轨迹") : Lang.tr("TNT 爆炸预测")) + " -> " + (on ? Lang.tr("开") : Lang.tr("关"))));
                     return 1;
                 }));
         }

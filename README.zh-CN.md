@@ -226,6 +226,13 @@ trajectorylens/
 └── gradlew(.bat) / gradle/wrapper/                 自带 Gradle wrapper
 ```
 
+## 语言 / Languages
+
+游戏内界面**跟随游戏语言**:`assets/trajectorylens/lang/en_us.json` 提供英文,`zh_cn.json` 是中文原文,
+其他语言(日/德/俄…)会回退到英文。目前控制面板、搜索选择器与全部聊天提示都已翻译,叠加在世界上的
+标签(轨迹文字、堵塞提示等)会在后续版本补上。翻译键就是中文原文(gettext 风格),所以**缺翻译也不会显示成
+key**,只会显示中文原文。欢迎 PR 补 `assets/trajectorylens/lang/<语言>.json`。
+
 ## 已知限制
 
 - 玩家 / 生物走位推挤、物品合并 / 拾取无法预知:对应轨迹实时重算或消失;

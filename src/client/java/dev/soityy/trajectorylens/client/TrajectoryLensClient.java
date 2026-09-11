@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import dev.soityy.trajectorylens.client.command.ClientCommands;
 import dev.soityy.trajectorylens.client.render.FlowRenderer;
 import dev.soityy.trajectorylens.client.render.LootRenderer;
@@ -92,7 +94,7 @@ public class TrajectoryLensClient implements ClientModInitializer {
         var pl = Minecraft.getInstance().player;
         if (pl != null) {
             pl.sendSystemMessage(Component.literal("[TrajectoryLens] "
-                + (isProjectiles ? "投掷物轨迹" : "TNT 爆炸预测") + " -> " + (on ? "开" : "关")));
+                + (isProjectiles ? Lang.tr("投掷物轨迹") : Lang.tr("TNT 爆炸预测")) + " -> " + (on ? Lang.tr("开") : Lang.tr("关"))));
         }
     }
 
@@ -106,7 +108,7 @@ public class TrajectoryLensClient implements ClientModInitializer {
         SettingsIO.snapshot(state, ranges, projectiles, flow, threats, loot).save();
         var pl = Minecraft.getInstance().player;
         if (pl != null) {
-            pl.sendSystemMessage(Component.literal("[TrajectoryLens] 卡口计数器 -> " + (on ? "开" : "关")));
+            pl.sendSystemMessage(Component.literal(Lang.tr("[TrajectoryLens] 卡口计数器 -> ") + (on ? Lang.tr("开") : Lang.tr("关"))));
         }
     }
 
@@ -120,20 +122,20 @@ public class TrajectoryLensClient implements ClientModInitializer {
                 if (player != null) {
                     player.sendSystemMessage(Component.literal(err != null
                         ? "[TrajectoryLens] " + err
-                        : "[TrajectoryLens] 已添加计数器: " + name + " (准星处)"));
+                        : Lang.tr("[TrajectoryLens] 已添加计数器: ") + name + Lang.tr(" (准星处)")));
                 }
             }
             case "remove" -> {
                 boolean ok = flow.removeCounter(name);
                 if (player != null) {
                     player.sendSystemMessage(Component.literal("[TrajectoryLens] "
-                        + (ok ? "已移除计数器: " + name : "没有这个计数器: " + name)));
+                        + (ok ? Lang.tr("已移除计数器: ") + name : Lang.tr("没有这个计数器: ") + name)));
                 }
             }
             case "clear" -> {
                 flow.clearCounters();
                 if (player != null) {
-                    player.sendSystemMessage(Component.literal("[TrajectoryLens] 已清空所有计数器"));
+                    player.sendSystemMessage(Component.literal(Lang.tr("[TrajectoryLens] 已清空所有计数器")));
                 }
             }
             default -> {
@@ -291,7 +293,7 @@ public class TrajectoryLensClient implements ClientModInitializer {
                     projectiles.setChain(on);
                     SettingsIO.snapshot(state, ranges, projectiles, flow, threats, loot).save();
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("[TrajectoryLens] 因果链推演 -> " + (on ? "开" : "关")));
+                        player.sendSystemMessage(Component.literal(Lang.tr("[TrajectoryLens] 因果链推演 -> ") + (on ? Lang.tr("开") : Lang.tr("关"))));
                     }
                 } else if (v.startsWith("losttrack:")) {
                     boolean on = switch (v.substring(10)) {
@@ -302,13 +304,13 @@ public class TrajectoryLensClient implements ClientModInitializer {
                     loot.setEnabled(on);
                     SettingsIO.snapshot(state, ranges, projectiles, flow, threats, loot).save();
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("[TrajectoryLens] 失踪溯源 -> " + (on ? "开" : "关")));
+                        player.sendSystemMessage(Component.literal(Lang.tr("[TrajectoryLens] 失踪溯源 -> ") + (on ? Lang.tr("开") : Lang.tr("关"))));
                     }
                 } else if (v.startsWith("jam:") || v.startsWith("despawn:") || v.startsWith("falling:")) {
                     boolean jam = v.startsWith("jam:");
                     boolean despawn = v.startsWith("despawn:");
                     String op = v.substring(v.indexOf(':') + 1);
-                    String label = jam ? "漏斗堵塞检测" : despawn ? "物品寿命提醒" : "下落方块落点";
+                    String label = jam ? Lang.tr("漏斗堵塞检测") : despawn ? Lang.tr("物品寿命提醒") : Lang.tr("下落方块落点");
                     boolean value;
                     if (jam) {
                         value = switch (op) {
@@ -334,7 +336,7 @@ public class TrajectoryLensClient implements ClientModInitializer {
                     }
                     SettingsIO.snapshot(state, ranges, projectiles, flow, threats, loot).save();
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("[TrajectoryLens] " + label + " -> " + (value ? "开" : "关")));
+                        player.sendSystemMessage(Component.literal("[TrajectoryLens] " + label + " -> " + (value ? Lang.tr("开") : Lang.tr("关"))));
                     }
                 } else if (v.startsWith("chaindepth:") || v.startsWith("chainhorizon:")) {
                     boolean depth = v.startsWith("chaindepth:");
@@ -359,15 +361,15 @@ public class TrajectoryLensClient implements ClientModInitializer {
                     }
                     SettingsIO.snapshot(state, ranges, projectiles, flow, threats, loot).save();
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("[TrajectoryLens] " + (depth ? "因果链层数" : "击退推演时长") + " -> "
-                            + (depth ? projectiles.chainDepth() + " 层" : projectiles.chainHorizonSeconds() + " 秒")));
+                        player.sendSystemMessage(Component.literal("[TrajectoryLens] " + (depth ? Lang.tr("因果链层数") : Lang.tr("击退推演时长")) + " -> "
+                            + (depth ? projectiles.chainDepth() + Lang.tr(" 层") : projectiles.chainHorizonSeconds() + Lang.tr(" 秒"))));
                     }
                 } else if (v.equals("export")) {
                     var f = Report.write(Report.lines(state, ranges, projectiles, flow, census, threats, loot));
                     if (player != null) {
                         player.sendSystemMessage(Component.literal(f != null
-                            ? "[TrajectoryLens] 报告已写入 " + f.getName()
-                            : "[TrajectoryLens] 报告写入失败"));
+                            ? Lang.tr("[TrajectoryLens] 报告已写入 ") + f.getName()
+                            : Lang.tr("[TrajectoryLens] 报告写入失败")));
                     }
                 } else if (v.startsWith("losttime:") || v.startsWith("glowtime:") || v.startsWith("jamtime:")) {
                     String kind = v.substring(0, v.indexOf(':'));
@@ -406,9 +408,9 @@ public class TrajectoryLensClient implements ClientModInitializer {
                     SettingsIO.snapshot(state, ranges, projectiles, flow, threats, loot).save();
                     if (player != null) {
                         String label = switch (kind) {
-                            case "losttime" -> "失踪标记显示 -> " + loot.markerSeconds() + " 秒";
-                            case "glowtime" -> "漏斗高亮时长 -> " + loot.glowSeconds() + " 秒";
-                            default -> "堵塞判定时长 -> " + flow.jamSeconds() + " 秒";
+                            case "losttime" -> Lang.tr("失踪标记显示 -> ") + loot.markerSeconds() + Lang.tr(" 秒");
+                            case "glowtime" -> Lang.tr("漏斗高亮时长 -> ") + loot.glowSeconds() + Lang.tr(" 秒");
+                            default -> Lang.tr("堵塞判定时长 -> ") + flow.jamSeconds() + Lang.tr(" 秒");
                         };
                         player.sendSystemMessage(Component.literal("[TrajectoryLens] " + label));
                     }
@@ -416,7 +418,7 @@ public class TrajectoryLensClient implements ClientModInitializer {
                     if (player != null) {
                         if (v.endsWith(":clear")) {
                             loot.clear();
-                            player.sendSystemMessage(Component.literal("[TrajectoryLens] 失踪记录已清空"));
+                            player.sendSystemMessage(Component.literal(Lang.tr("[TrajectoryLens] 失踪记录已清空")));
                         } else {
                             for (String line : loot.report()) {
                                 player.sendSystemMessage(Component.literal(line));
@@ -432,7 +434,7 @@ public class TrajectoryLensClient implements ClientModInitializer {
                     threats.setEnabled(on);
                     SettingsIO.snapshot(state, ranges, projectiles, flow, threats, loot).save();
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("[TrajectoryLens] 威胁指示 -> " + (on ? "开" : "关")));
+                        player.sendSystemMessage(Component.literal(Lang.tr("[TrajectoryLens] 威胁指示 -> ") + (on ? Lang.tr("开") : Lang.tr("关"))));
                     }
                 } else if (v.startsWith("aim:")) {
                     boolean on = switch (v.substring(4)) {
@@ -443,7 +445,7 @@ public class TrajectoryLensClient implements ClientModInitializer {
                     projectiles.setAim(on);
                     SettingsIO.snapshot(state, ranges, projectiles, flow, threats, loot).save();
                     if (player != null) {
-                        player.sendSystemMessage(Component.literal("[TrajectoryLens] 手持瞄准预测 -> " + (on ? "开" : "关")));
+                        player.sendSystemMessage(Component.literal(Lang.tr("[TrajectoryLens] 手持瞄准预测 -> ") + (on ? Lang.tr("开") : Lang.tr("关"))));
                     }
                 } else if (v.startsWith("flowcount:")) {
                     applyFlowSwitch(v.substring(10));

@@ -3,6 +3,14 @@
 All notable changes to TrajectoryLens are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project uses [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Localisation** — the in-game UI now follows the game language. English strings live in
+  `assets/trajectorylens/lang/en_us.json`, Chinese in `zh_cn.json`; the control panel, search
+  pickers and all chat feedback are translated so far, the overlay labels follow next.
+- English README (`README.md`, shown by default) with the Chinese original kept as `README.zh-CN.md`.
+
 ## [1.0.0] - 2026-09-12
 
 First public release (renamed from the private "ItemTrajectory" build).

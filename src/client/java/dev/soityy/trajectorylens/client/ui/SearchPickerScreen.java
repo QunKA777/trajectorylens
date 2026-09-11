@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.ui;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import dev.soityy.trajectorylens.client.track.EntityCensus;
 import dev.soityy.trajectorylens.client.track.FlowTracker;
 import dev.soityy.trajectorylens.client.track.LootTracker;
@@ -58,7 +60,7 @@ public class SearchPickerScreen extends Screen {
     public SearchPickerScreen(Screen rootLast, OverlayState drops, WalkRangeOverlay ranges,
                               ProjectileOverlay projectiles, FlowTracker flow, EntityCensus census, ThreatOverlay threats,
                               LootTracker loot, boolean forItems, int returnPage) {
-        super(Component.literal(forItems ? "选择要模拟的掉落物" : "选择要模拟的生物类型"));
+        super(Component.literal(forItems ? Lang.tr("选择要模拟的掉落物") : Lang.tr("选择要模拟的生物类型")));
         this.rootLast = rootLast;
         this.drops = drops;
         this.ranges = ranges;
@@ -96,8 +98,8 @@ public class SearchPickerScreen extends Screen {
         GridLayout.RowHelper helper = grid.createRowHelper(1);
         int w = Math.min(330, this.width - 24);
 
-        this.searchBox = new EditBox(this.font, w, 18, Component.literal("搜索"));
-        this.searchBox.setHint(Component.literal("输入关键字(↑↓选择, Enter 确认, Esc 返回)"));
+        this.searchBox = new EditBox(this.font, w, 18, Component.literal(Lang.tr("搜索")));
+        this.searchBox.setHint(Component.literal(Lang.tr("输入关键字(↑↓选择, Enter 确认, Esc 返回)")));
         this.searchBox.setMaxLength(64);
         this.searchBox.setResponder(s -> {
             this.selection = 0;
@@ -114,7 +116,7 @@ public class SearchPickerScreen extends Screen {
             this.slots.add(b);
         }
         this.layout.addToContents(grid);
-        this.layout.addToFooter(Button.builder(Component.literal("返回"), b -> back()).width(100).build());
+        this.layout.addToFooter(Button.builder(Component.literal(Lang.tr("返回")), b -> back()).width(100).build());
         this.layout.visitWidgets(x -> this.addRenderableWidget(x));
         this.repositionElements();
 
@@ -149,10 +151,10 @@ public class SearchPickerScreen extends Screen {
     private void repaintSlots() {
         if (this.matches.isEmpty()) {
             for (Button b : this.slots) {
-                b.setMessage(Component.literal("§7无匹配(继续输入或改关键字)"));
+                b.setMessage(Component.literal(Lang.tr("§7无匹配(继续输入或改关键字)")));
                 b.active = false;
             }
-            this.slots.get(0).setMessage(Component.literal("§7无匹配 — 试试更短的关键字"));
+            this.slots.get(0).setMessage(Component.literal(Lang.tr("§7无匹配 — 试试更短的关键字")));
             return;
         }
         int start = Math.max(0, Math.min(this.selection, this.matches.size() - VISIBLE));
@@ -188,7 +190,7 @@ public class SearchPickerScreen extends Screen {
         if (pl != null) {
             pl.sendSystemMessage(Component.literal(err != null
                 ? "[TrajectoryLens] " + err
-                : "[TrajectoryLens] 已添加: " + id));
+                : Lang.tr("[TrajectoryLens] 已添加: ") + id));
         }
         if (err == null) {
             SettingsIO.snapshot(this.drops, this.ranges, this.projectiles, this.flow, this.threats, this.loot).save();
