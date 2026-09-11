@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.track;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,7 +56,12 @@ public final class ChainForecast {
         public String note;
         public int color;
         public boolean player;
+        /** What the landing spot means. Kept as an enum so colouring never parses the label text. */
+        public Verdict verdict = Verdict.NONE;
     }
+
+    /** Landing verdict for a launched entity. */
+    public enum Verdict { LAVA, CACTUS, VOID, WATER, FALL, SAFE, AIRBORNE, NONE }
 
     public static final class Plan {
         public final List<Step> steps = new ArrayList<>();
@@ -75,7 +82,7 @@ public final class ChainForecast {
         first.delayTicks = Math.max(0, fuseTicks);
         first.pos = center;
         first.power = power;
-        first.label = source instanceof PrimedTnt ? "TNT" : "爆炸";
+        first.label = source instanceof PrimedTnt ? "TNT" : Lang.tr("爆炸");
         first.order = 1;
         plan.steps.add(first);
         // every phase is isolated: a broken entity / unloaded chunk must degrade the plan, not crash
@@ -107,7 +114,7 @@ public final class ChainForecast {
             s.delayTicks = parent.delayTicks + 20; // destroyed carts fuse 0-38 ticks; 20 is the average
             s.pos = cart.position();
             s.power = 4.0F;
-            s.label = "TNT矿车连锁";
+            s.label = Lang.tr("TNT矿车连锁");
             s.order = plan.steps.size() + 1;
             plan.steps.add(s);
             expand(level, plan, s, carts, depth + 1);
@@ -121,7 +128,7 @@ public final class ChainForecast {
             s.delayTicks = Math.max(0, tnt.getFuse());
             s.pos = arc.landing != null ? arc.landing : tnt.position();
             s.power = 4.0F;
-            s.label = "被炸飞的 TNT";
+            s.label = Lang.tr("被炸飞的 TNT");
             s.order = plan.steps.size() + 1;
             plan.steps.add(s);
         }
@@ -134,7 +141,7 @@ public final class ChainForecast {
             }
         }
         if (tntBlocks > 0) {
-            plan.notes.add("§c" + tntBlocks + " 个 TNT 方块将被摧毁(不会被引爆)");
+            plan.notes.add("§c" + tntBlocks + Lang.tr(" 个 TNT 方块将被摧毁(不会被引爆)"));
         }
     }
 
@@ -172,39 +179,50 @@ public final class ChainForecast {
             arc.from = e.position();
             arc.player = e instanceof net.minecraft.world.entity.player.Player;
             arc.note = describe(level, e, arc, center);
-            arc.color = arc.note.contains("岩浆") ? 0xFFFF5020
-                : arc.note.contains("仙人掌") ? 0xFF40C040
-                : arc.note.contains("虚空") ? 0xFFB060FF
-                : arc.player ? 0xFFFFE040 : 0xFFA0A0A0;
+            arc.color = switch (arc.verdict) {
+                case LAVA -> 0xFFFF5020;
+                case CACTUS -> 0xFF40C040;
+                case VOID -> 0xFFB060FF;
+                case WATER -> 0xFF40D0FF;
+                case FALL -> 0xFFFFD040;
+                default -> arc.player ? 0xFFFFE040 : 0xFFA0A0A0;
+            };
             plan.pushes.add(arc);
             count++;
         }
     }
 
     private static String describe(Level level, Entity e, PushArc arc, Vec3 center) {
-        String name = e instanceof net.minecraft.world.entity.player.Player ? "你" : e.getName().getString();
+        String name = e instanceof net.minecraft.world.entity.player.Player ? Lang.tr("你") : e.getName().getString();
         if (arc.landing == null) {
-            return "§7" + name + ": 轨迹未落地";
+            arc.verdict = Verdict.AIRBORNE;
+            return String.format(Lang.tr("§7%s: 轨迹未落地"), name);
         }
         BlockPos lp = BlockPos.containing(arc.landing);
         if (arc.landing.y < level.getMinY() + 1) {
-            return "§5" + name + " → 虚空";
+            arc.verdict = Verdict.VOID;
+            return String.format(Lang.tr("§5%s → 虚空"), name);
         }
         if (level.getFluidState(lp).is(FluidTags.LAVA)) {
-            return "§c" + name + " → 岩浆!";
+            arc.verdict = Verdict.LAVA;
+            return String.format(Lang.tr("§c%s → 岩浆!"), name);
         }
         if (level.getBlockState(lp).is(Blocks.CACTUS)) {
-            return "§2" + name + " → 仙人掌";
+            arc.verdict = Verdict.CACTUS;
+            return String.format(Lang.tr("§2%s → 仙人掌"), name);
         }
         if (level.getFluidState(lp).is(FluidTags.WATER)) {
-            return "§b" + name + " → 水里(安全)";
+            arc.verdict = Verdict.WATER;
+            return String.format(Lang.tr("§b%s → 水里(安全)"), name);
         }
         double fall = center.y - arc.landing.y;
         if (fall > 4) {
             int dmg = (int) Math.floor(fall - 3);
-            return "§e" + name + " → 摔落 " + dmg + " 点";
+            arc.verdict = Verdict.FALL;
+            return String.format(Lang.tr("§e%s → 摔落 %d 点"), name, dmg);
         }
-        return "§7" + name + " → 安全落地";
+        arc.verdict = Verdict.SAFE;
+        return String.format(Lang.tr("§7%s → 安全落地"), name);
     }
 
     /** Simple push-flight: gravity + drag per tick, ray-clipped against the world. */

@@ -19,7 +19,7 @@ server**: install it on your client and it works on any server, vanilla or modde
 ## Install
 
 1. Install **Fabric Loader 0.19.3+** and **Fabric API** (26.2 build);
-2. Drop `trajectorylens-1.0.0.jar` into your client `mods/` folder;
+2. Drop `trajectorylens-1.1.0.jar` into your client `mods/` folder;
 3. In game press **G** to toggle item trajectories, **H+J** to open the control panel, or type `/trajectorylens` (short alias `/tl`).
 
 - **A client-side install is all you need.** Every feature is computed locally; the server does not have
@@ -226,7 +226,7 @@ the block name and the estimated time to impact. If a mob or player stands under
 All you need is **JDK 25**; the bundled Gradle wrapper downloads Gradle 9.5.1 on first run.
 
 ```bash
-./gradlew build        # Windows: gradlew.bat build  -> build/libs/trajectorylens-1.0.0.jar
+./gradlew build        # Windows: gradlew.bat build  -> build/libs/trajectorylens-1.1.0.jar
 ./gradlew test         # pure-logic unit tests (path decimation / colour helpers)
 ./gradlew genSources   # optional: decompiled 26.2 sources for API reference
 ```

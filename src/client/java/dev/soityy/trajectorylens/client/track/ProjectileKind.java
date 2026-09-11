@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.track;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
@@ -31,7 +33,8 @@ public enum ProjectileKind {
     TNT("TNT", 0xFFFF4A3A, 0.04, 0.98, 0.98, 0.0, 4.0F, true),
     CREEPER("苦力怕", 0xFF5BD24A, 0.0, 1.0, 1.0, 0.0, 3.0F, false);
 
-    public final String label;
+    /** Chinese source text, also the translation key. */
+    public final String key;
     public final int color;
     public final double gravity;
     public final double airDrag;
@@ -40,9 +43,14 @@ public enum ProjectileKind {
     public final float explosionPower;   // 0 = no explosion
     public final boolean moveCollision;  // PrimedTnt-style move() instead of ray clip
 
-    ProjectileKind(String label, int color, double gravity, double airDrag, double waterDrag,
+    /** Translated projectile name. */
+    public String label() {
+        return Lang.tr(this.key);
+    }
+
+    ProjectileKind(String key, int color, double gravity, double airDrag, double waterDrag,
                    double acceleration, float explosionPower, boolean moveCollision) {
-        this.label = label;
+        this.key = key;
         this.color = color;
         this.gravity = gravity;
         this.airDrag = airDrag;

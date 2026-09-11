@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.render;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import dev.soityy.trajectorylens.client.track.FlowTracker;
 
 import dev.soityy.trajectorylens.client.track.FlowTracker.Counter;
@@ -47,8 +49,8 @@ public final class FlowRenderer {
             .setAlwaysOnTop();
         Gizmos.point(jam.hit.center().add(0, 0.6, 0), stroke, 0.3F).setAlwaysOnTop();
         String label = locked
-            ? String.format("§b红石锁定 §f%d 件 §7(漏斗被红石关掉了)", jam.items)
-            : String.format("§c堵塞 §f%d 件 §7已 %.1fs §8%s", jam.items, jam.heldTicks / 20.0, jam.sample);
+            ? String.format(Lang.tr("§b红石锁定 §f%d 件 §7(漏斗被红石关掉了)"), jam.items)
+            : String.format(Lang.tr("§c堵塞 §f%d 件 §7已 %.1fs §8%s"), jam.items, jam.heldTicks / 20.0, jam.sample);
         Gizmos.billboardText(label, jam.hit.center().add(0, 1.15, 0),
             TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.75F)).setAlwaysOnTop();
     }
@@ -74,7 +76,7 @@ public final class FlowRenderer {
         Gizmos.line(b, d, stroke, 2.0F).setAlwaysOnTop();
         Gizmos.line(d, e, stroke, 2.0F).setAlwaysOnTop();
         Gizmos.line(e, a, stroke, 2.0F).setAlwaysOnTop();
-        String label = String.format("§e%s§f: %d/min  堆积 %.0f", c.name, c.perMinute(), c.backlog);
+        String label = String.format(Lang.tr("§e%s§f: %d/min  堆积 %.0f"), c.name, c.perMinute(), c.backlog);
         Gizmos.billboardText(label, p.add(0, c.h / 2 + 0.5, 0),
             TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.8F)).setAlwaysOnTop();
     }

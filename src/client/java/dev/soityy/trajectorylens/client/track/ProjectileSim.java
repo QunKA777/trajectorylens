@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.track;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -96,7 +98,7 @@ public final class ProjectileSim {
             Hit chosen = null;
             Vec3 end = to;
             if (blockHit.getType() != HitResult.Type.MISS) {
-                chosen = new Hit(blockHit.getLocation(), "方块", true);
+                chosen = new Hit(blockHit.getLocation(), Lang.tr("方块"), true);
                 end = blockHit.getLocation();
             }
             if (entHit != null && (chosen == null || pos.distanceToSqr(entHit.pos()) < pos.distanceToSqr(chosen.pos()))) {

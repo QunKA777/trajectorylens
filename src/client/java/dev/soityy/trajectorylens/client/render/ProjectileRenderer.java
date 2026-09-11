@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.render;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import dev.soityy.trajectorylens.client.track.ChainForecast;
 import dev.soityy.trajectorylens.client.track.ProjectileKind;
 import dev.soityy.trajectorylens.client.track.ProjectileOverlay;
@@ -52,7 +54,7 @@ public final class ProjectileRenderer {
             if (r.hit != null) {
                 Gizmos.circle(r.hit.pos(), 0.4F,
                     GizmoStyle.strokeAndFill(color, 2.0F, (0x66000000 | rgb))).setAlwaysOnTop();
-                String txt = r.hit.block() ? "命中方块" : ("命中: " + r.hit.label());
+                String txt = r.hit.block() ? Lang.tr("命中方块") : (Lang.tr("命中: ") + r.hit.label());
                 Gizmos.billboardText("§f" + txt, r.hit.pos().add(0, 0.6, 0),
                     TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.75F)).setAlwaysOnTop();
             }
@@ -60,7 +62,7 @@ public final class ProjectileRenderer {
             if (e.kind == ProjectileKind.TNT || e.kind == ProjectileKind.CREEPER) {
                 int fuse = r.fuseRemaining >= 0 ? r.fuseRemaining : (r.fuseTicks >= 0 ? r.fuseTicks : 0);
                 Vec3 top = e.entity.position().add(0, 1.2, 0);
-                String head = e.kind == ProjectileKind.TNT ? "§cTNT" : "§a苦力怕";
+                String head = e.kind == ProjectileKind.TNT ? "§cTNT" : Lang.tr("§a苦力怕");
                 Gizmos.billboardText(String.format("%s §f%.1fs", head, fuse / 20.0F), top,
                     TextGizmo.Style.forColorAndCentered(0xFFFF8888).withScale(0.85F)).setAlwaysOnTop();
                 if (!e.impactText.isEmpty()) {
@@ -78,7 +80,7 @@ public final class ProjectileRenderer {
                 int pc = e.pearlDanger ? 0xFFFF4040 : 0xFF40FF80;
                 Gizmos.circle(e.pearlDest, 0.55F,
                     GizmoStyle.strokeAndFill(pc, 2.0F, (0x44 << 24) | (pc & 0xFFFFFF))).setAlwaysOnTop();
-                Gizmos.billboardText("§b→ 传送落点", e.pearlDest.add(0, 0.9, 0),
+                Gizmos.billboardText(Lang.tr("§b→ 传送落点"), e.pearlDest.add(0, 0.9, 0),
                     TextGizmo.Style.forColorAndCentered(0xFF9FE8FF).withScale(0.75F)).setAlwaysOnTop();
                 Gizmos.billboardText(e.pearlText, e.pearlDest.add(0, 0.62, 0),
                     TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.72F)).setAlwaysOnTop();
@@ -91,7 +93,7 @@ public final class ProjectileRenderer {
                     int sc = order == 1 ? 0xFFFF8040 : 0xFFFFC040;
                     Gizmos.circle(s.pos, Math.max(0.6F, s.power * 0.5F),
                         GizmoStyle.strokeAndFill(sc, 1.6F, (0x22000000 | (sc & 0xFFFFFF)))).setAlwaysOnTop();
-                    Gizmos.billboardText(String.format("§6%s§f %d) +%.1fs §7威力%.0f", "§l", order,
+                    Gizmos.billboardText(String.format(Lang.tr("§6%s§f %d) +%.1fs §7威力%.0f"), "§l", order,
                         s.delayTicks / 20.0F, s.power), s.pos.add(0, 1.6, 0),
                         TextGizmo.Style.forColorAndCentered(0xFFFFD080).withScale(0.7F)).setAlwaysOnTop();
                     order++;
@@ -146,7 +148,7 @@ public final class ProjectileRenderer {
             }
             Gizmos.circle(b.add(0, 0.05, 0), 0.5F, GizmoStyle.strokeAndFill(stroke, 2.0F, (0x2A << 24) | rgb))
                 .setAlwaysOnTop();
-            Gizmos.billboardText(String.format("§6%s §7落点 %.1fs%s", f.block(), f.ticks() / 20.0F,
+            Gizmos.billboardText(String.format(Lang.tr("§6%s §7落点 %.1fs%s"), f.block(), f.ticks() / 20.0F,
                 hit ? (" §c" + f.crush()) : ""), b.add(0, 0.6, 0),
                 TextGizmo.Style.forColorAndCentered(hit ? 0xFFFF9090 : 0xFFFFFFFF).withScale(0.7F)).setAlwaysOnTop();
         }
@@ -163,12 +165,12 @@ public final class ProjectileRenderer {
                 budget--;
             }
             Vec3 start = pts.get(0);
-            Gizmos.billboardText("§b瞄准 §f" + overlay.aimLabel(), start.add(0, 0.5, 0),
+            Gizmos.billboardText(Lang.tr("§b瞄准 §f") + overlay.aimLabel(), start.add(0, 0.5, 0),
                 TextGizmo.Style.forColorAndCentered(0xFFB0FFFF).withScale(0.75F)).setAlwaysOnTop();
             if (aim.hit != null) {
                 Gizmos.circle(aim.hit.pos(), 0.35F,
                     GizmoStyle.strokeAndFill(color, 1.8F, (0x55000000 | rgb))).setAlwaysOnTop();
-                String txt = aim.hit.block() ? "§7将命中方块" : ("§c将命中: §f" + aim.hit.label());
+                String txt = aim.hit.block() ? Lang.tr("§7将命中方块") : (Lang.tr("§c将命中: §f") + aim.hit.label());
                 Gizmos.billboardText(txt, aim.hit.pos().add(0, 0.55, 0),
                     TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.75F)).setAlwaysOnTop();
             }
@@ -177,7 +179,7 @@ public final class ProjectileRenderer {
                 int pc = overlay.aimPearlDanger() ? 0xFFFF4040 : 0xFF40FF80;
                 Gizmos.circle(dest, 0.55F,
                     GizmoStyle.strokeAndFill(pc, 2.0F, (0x44 << 24) | (pc & 0xFFFFFF))).setAlwaysOnTop();
-                Gizmos.billboardText("§b→ 传送落点", dest.add(0, 0.9, 0),
+                Gizmos.billboardText(Lang.tr("§b→ 传送落点"), dest.add(0, 0.9, 0),
                     TextGizmo.Style.forColorAndCentered(0xFF9FE8FF).withScale(0.75F)).setAlwaysOnTop();
                 Gizmos.billboardText(overlay.aimPearlText(), dest.add(0, 0.62, 0),
                     TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.72F)).setAlwaysOnTop();

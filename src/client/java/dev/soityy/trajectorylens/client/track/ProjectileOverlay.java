@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.track;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -261,41 +263,41 @@ public final class ProjectileOverlay {
                 }
                 kind = ProjectileKind.ARROW;
                 speed = power * 3.0;
-                label = String.format("拉弦 %d%%", Math.round(power * 100));
+                label = String.format(Lang.tr("拉弦 %d%%"), Math.round(power * 100));
             } else if (st.is(Items.CROSSBOW)) {
                 if (!CrossbowItem.isCharged(st)) {
                     continue;
                 }
                 kind = ProjectileKind.ARROW;
                 speed = 3.15;
-                label = "弩已上膛";
+                label = Lang.tr("弩已上膛");
             } else if (st.is(Items.TRIDENT)) {
                 if (!p.isUsingItem() || !ItemStack.isSameItemSameComponents(p.getUseItem(), st)) {
                     continue;
                 }
                 kind = ProjectileKind.TRIDENT;
                 speed = 2.5;
-                label = "三叉戟";
+                label = Lang.tr("三叉戟");
             } else if (st.is(Items.SNOWBALL)) {
                 kind = ProjectileKind.SNOWBALL;
                 speed = 1.5;
-                label = "雪球";
+                label = Lang.tr("雪球");
             } else if (st.is(Items.EGG)) {
                 kind = ProjectileKind.EGG;
                 speed = 1.5;
-                label = "鸡蛋";
+                label = Lang.tr("鸡蛋");
             } else if (st.is(Items.ENDER_PEARL)) {
                 kind = ProjectileKind.ENDER_PEARL;
                 speed = 1.5;
-                label = "末影珍珠";
+                label = Lang.tr("末影珍珠");
             } else if (st.is(Items.SPLASH_POTION) || st.is(Items.LINGERING_POTION)) {
                 kind = ProjectileKind.POTION;
                 speed = 1.5;
-                label = "药水";
+                label = Lang.tr("药水");
             } else if (st.is(Items.EXPERIENCE_BOTTLE)) {
                 kind = ProjectileKind.SNOWBALL;
                 speed = 1.5;
-                label = "经验瓶";
+                label = Lang.tr("经验瓶");
             }
             if (kind == null) {
                 continue;
@@ -429,7 +431,7 @@ public final class ProjectileOverlay {
                     land.x + 0.6, land.y + 0.4, land.z + 0.6);
                 for (net.minecraft.world.entity.LivingEntity le
                     : level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, box)) {
-                    crush = le == mc.player ? "砸到你!" : ("砸到 " + le.getName().getString() + "!");
+                    crush = le == mc.player ? Lang.tr("砸到你!") : (Lang.tr("砸到 ") + le.getName().getString() + "!");
                     break;
                 }
                 this.falling.add(new Falling(fb.position(), land,
@@ -503,7 +505,7 @@ public final class ProjectileOverlay {
         boolean danger = false;
         StringBuilder sb = new StringBuilder();
         if (dest.y < level.getMinY() + 1) {
-            sb.append("§c虚空! 传过去就没了");
+            sb.append(Lang.tr("§c虚空! 传过去就没了"));
             danger = true;
         } else {
             var state = level.getBlockState(feet);
@@ -511,12 +513,12 @@ public final class ProjectileOverlay {
             boolean inWater = state.getFluidState().is(net.minecraft.tags.FluidTags.WATER);
             boolean blocked = !state.getCollisionShape(level, feet).isEmpty();
             if (inLava) {
-                sb.append("§c落点岩浆: 传送即重伤");
+                sb.append(Lang.tr("§c落点岩浆: 传送即重伤"));
                 danger = true;
             } else if (inWater) {
-                sb.append("§a落点水中: 无落地伤害");
+                sb.append(Lang.tr("§a落点水中: 无落地伤害"));
             } else if (blocked) {
-                sb.append("§c落点在方块内部: 窒息风险");
+                sb.append(Lang.tr("§c落点在方块内部: 窒息风险"));
                 danger = true;
             } else {
                 int groundY = Integer.MIN_VALUE;
@@ -524,7 +526,7 @@ public final class ProjectileOverlay {
                     var below = level.getBlockState(new net.minecraft.core.BlockPos(feet.getX(), y, feet.getZ()));
                     if (below.getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
                         groundY = y + 1;
-                        sb.append("§a落点水面: 无落地伤害");
+                        sb.append(Lang.tr("§a落点水面: 无落地伤害"));
                         break;
                     }
                     if (!below.getCollisionShape(level, new net.minecraft.core.BlockPos(feet.getX(), y, feet.getZ())).isEmpty()) {
@@ -532,21 +534,21 @@ public final class ProjectileOverlay {
                         int fall = (int) Math.floor(dest.y - groundY);
                         if (fall > 3) {
                             int dmg = fall - 3;
-                            sb.append("§e下坠 ").append(fall).append(" 格: 约 ").append(dmg).append(" 点摔落伤害(未计护具)");
+                            sb.append(Lang.tr("§e下坠 ")).append(fall).append(Lang.tr(" 格: 约 ")).append(dmg).append(Lang.tr(" 点摔落伤害(未计护具)"));
                             danger = dmg >= 6;
                         } else {
-                            sb.append("§a可直接落地");
+                            sb.append(Lang.tr("§a可直接落地"));
                         }
                         break;
                     }
                 }
                 if (groundY == Integer.MIN_VALUE) {
-                    sb.append("§c下方无地面: 持续下坠");
+                    sb.append(Lang.tr("§c下方无地面: 持续下坠"));
                     danger = true;
                 }
             }
         }
-        sb.append("  §7(传送自伤 5)");
+        sb.append(Lang.tr("  §7(传送自伤 5)"));
         return new PearlInfo(dest, sb.toString(), danger);
     }
 
@@ -601,41 +603,41 @@ public final class ProjectileOverlay {
                 en.risky.add(p.immutable());
             }
         }
-        StringBuilder sb = new StringBuilder("波及: ");
+        StringBuilder sb = new StringBuilder(Lang.tr("波及: "));
         boolean any = false;
         if (players > 0) {
-            sb.append("玩家").append(players).append(' ');
+            sb.append(Lang.tr("玩家")).append(players).append(' ');
             any = true;
         }
         if (villagers > 0) {
-            sb.append("村民").append(villagers).append(' ');
+            sb.append(Lang.tr("村民")).append(villagers).append(' ');
             any = true;
         }
         if (tamed > 0) {
-            sb.append("宠物").append(tamed).append(' ');
+            sb.append(Lang.tr("宠物")).append(tamed).append(' ');
             any = true;
         }
         if (mobs > 0) {
-            sb.append("其他生物").append(mobs);
+            sb.append(Lang.tr("其他生物")).append(mobs);
             any = true;
         }
         if (!any) {
-            sb.append("无生物");
+            sb.append(Lang.tr("无生物"));
         }
         var pl = Minecraft.getInstance().player;
         if (pl != null && pl.position().distanceTo(center) <= radius) {
-            sb.append(" §c⚠你在范围内");
+            sb.append(Lang.tr(" §c⚠你在范围内"));
         }
         if (containers + hoppers + spawners > 0) {
-            sb.append("  §e风险: ");
+            sb.append(Lang.tr("  §e风险: "));
             if (containers > 0) {
-                sb.append("容器").append(containers).append(' ');
+                sb.append(Lang.tr("容器")).append(containers).append(' ');
             }
             if (hoppers > 0) {
-                sb.append("漏斗").append(hoppers).append(' ');
+                sb.append(Lang.tr("漏斗")).append(hoppers).append(' ');
             }
             if (spawners > 0) {
-                sb.append("刷怪笼").append(spawners);
+                sb.append(Lang.tr("刷怪笼")).append(spawners);
             }
         }
         en.impactText = sb.toString();

@@ -3,13 +3,21 @@
 All notable changes to TrajectoryLens are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project uses [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [1.1.0] - 2026-09-12
 
 ### Added
-- **Localisation** — the in-game UI now follows the game language. English strings live in
-  `assets/trajectorylens/lang/en_us.json`, Chinese in `zh_cn.json`; the control panel, search
-  pickers and all chat feedback are translated so far, the overlay labels follow next.
+- **Localisation** — the whole in-game UI now follows the game language, including every label drawn
+  in the world (trajectory text, jam / redstone-lock boxes, causal-chain verdicts, threat rings,
+  census and the exported report). English lives in `assets/trajectorylens/lang/en_us.json`, Chinese
+  in `zh_cn.json`; other languages fall back to English. Translation keys are the Chinese source
+  strings, so a missing entry can never show up as a raw key.
 - English README (`README.md`, shown by default) with the Chinese original kept as `README.zh-CN.md`.
+
+### Changed
+- Causal-chain landing verdicts (lava / cactus / void / water / fall damage / safe) are now an enum
+  instead of being parsed back out of the display text, so colouring survives translation.
+- Item-loss reasons, projectile kinds and the panel tab labels are translated on demand instead of
+  being frozen in static/enum initialisers, so a language change takes effect immediately.
 
 ## [1.0.0] - 2026-09-12
 

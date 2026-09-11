@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.ui;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public final class KeySettings {
     /** "O + P" style label. */
     public static String display(int[] chord) {
         if (chord == null || chord.length == 0) {
-            return "未绑定";
+            return Lang.tr("未绑定");
         }
         StringBuilder sb = new StringBuilder();
         for (int k : chord) {
@@ -133,6 +135,6 @@ public final class KeySettings {
         if (code >= InputConstants.KEY_F1 && code <= InputConstants.KEY_F25) {
             return "F" + (code - InputConstants.KEY_F1 + 1);
         }
-        return "键" + code;
+        return Lang.tr("键") + code;
     }
 }

@@ -23,7 +23,7 @@ server**: install it on your client and it works on any server, vanilla or modde
 ## 安装
 
 1. 装 **Fabric Loader 0.19.3+** 与 **Fabric API**(26.2 版);
-2. 把 `trajectorylens-1.0.0.jar` 放进客户端 `mods/`;
+2. 把 `trajectorylens-1.1.0.jar` 放进客户端 `mods/`;
 3. 进游戏后按 **G** 开关掉落物轨迹,按 **H+J** 打开控制面板,或输入 `/trajectorylens`(短别名 `/tl`)。
 
 - **只装在你自己客户端就够**:所有功能都在本地计算,服务器不需要装、也不会收到任何本模组的数据包,
@@ -195,7 +195,7 @@ ItemEntity**(从不加入世界),逐 tick 调用与服务器相同的引擎方�
 只需要 **JDK 25**;Gradle 用仓库自带的 wrapper(首次运行会自动下载 Gradle 9.5.1)。
 
 ```bash
-./gradlew build        # Windows: gradlew.bat build  → build/libs/trajectorylens-1.0.0.jar
+./gradlew build        # Windows: gradlew.bat build  → build/libs/trajectorylens-1.1.0.jar
 ./gradlew test         # 纯逻辑单测(路径抽稀 / 颜色工具)
 ./gradlew genSources   # (可选)生成 26.2 反编译源码,方便查 API
 ```

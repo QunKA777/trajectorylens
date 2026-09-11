@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.track;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -247,7 +249,7 @@ public final class FlowTracker {
             + ", count=" + this.counters.size());
         for (Counter c : this.counters.values()) {
             sb.append(" | ").append(c.name).append(": ").append(c.perMinute()).append("/min").append(c.spark())
-                .append(", 堆积 ")
+                .append(Lang.tr(", 堆积 "))
                 .append(String.format("%.0f", c.backlog));
         }
         return sb.toString();
@@ -380,13 +382,13 @@ public final class FlowTracker {
     public String jamSummary() {
         List<Jam> list = jams();
         if (list.isEmpty()) {
-            return "堵塞检测=" + (this.jamOn ? "on" : "off") + " 当前无堵塞";
+            return Lang.tr("堵塞检测=") + (this.jamOn ? "on" : "off") + Lang.tr(" 当前无堵塞");
         }
-        StringBuilder sb = new StringBuilder("堵塞检测=" + (this.jamOn ? "on" : "off") + " " + list.size() + " 处");
+        StringBuilder sb = new StringBuilder(Lang.tr("堵塞检测=") + (this.jamOn ? "on" : "off") + " " + list.size() + Lang.tr(" 处"));
         for (Jam j : list) {
-            sb.append(" | ").append(j.hit.locked() ? "红石锁定" : "堵塞")
+            sb.append(" | ").append(j.hit.locked() ? Lang.tr("红石锁定") : Lang.tr("堵塞"))
                 .append(" @(").append((int) j.hit.center().x).append(",").append((int) j.hit.center().y)
-                .append(",").append((int) j.hit.center().z).append(") ").append(j.items).append(" 件 ")
+                .append(",").append((int) j.hit.center().z).append(") ").append(j.items).append(Lang.tr(" 件 "))
                 .append(String.format("%.1fs", j.heldTicks / 20.0));
         }
         return sb.toString();

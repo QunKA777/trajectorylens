@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.track;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -67,8 +69,8 @@ public final class ThreatOverlay {
                 alert++;
             }
         }
-        return "威胁指示=" + (this.on ? "on" : "off") + ", 锁定" + locked + " 警戒" + alert
-            + " 未察觉" + (this.threats.size() - locked - alert);
+        return Lang.tr("威胁指示=") + (this.on ? "on" : "off") + Lang.tr(", 锁定") + locked + Lang.tr(" 警戒") + alert
+            + Lang.tr(" 未察觉") + (this.threats.size() - locked - alert);
     }
 
     public void tick(Minecraft mc) {

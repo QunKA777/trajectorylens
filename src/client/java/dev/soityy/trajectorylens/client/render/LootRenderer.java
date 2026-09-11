@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.render;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import dev.soityy.trajectorylens.client.track.Hoppers;
 import dev.soityy.trajectorylens.client.track.LootTracker;
 
@@ -36,7 +38,7 @@ public final class LootRenderer {
             Gizmos.circle(p, 0.4F, GizmoStyle.strokeAndFill(edge, 1.8F, (int) (0x33 * left) << 24 | (color & 0xFFFFFF)))
                 .setAlwaysOnTop();
             Gizmos.point(p, edge, 0.22F).setAlwaysOnTop();
-            Gizmos.billboardText(String.format("§7%s §f%s×%d §7%.0fs", e.reason.label, e.itemName, e.count, left * life / 1000.0F),
+            Gizmos.billboardText(String.format("§7%s §f%s×%d §7%.0fs", e.reason.label(), e.itemName, e.count, left * life / 1000.0F),
                 p.add(0, 0.45, 0), TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.65F)).setAlwaysOnTop();
         }
 
@@ -47,7 +49,7 @@ public final class LootRenderer {
             Vec3 p = new Vec3(warn.pos().x, warn.pos().y + 0.9, warn.pos().z);
             Gizmos.circle(p, 0.34F, GizmoStyle.strokeAndFill((0xEE << 24) | rgb, 2.2F, (0x33 << 24) | rgb))
                 .setAlwaysOnTop();
-            Gizmos.billboardText(String.format("§6≤%ds 消失 §f%s", warn.remainingTicks() / 20, warn.name()),
+            Gizmos.billboardText(String.format(Lang.tr("§6≤%ds 消失 §f%s"), warn.remainingTicks() / 20, warn.name()),
                 p.add(0, 0.35, 0), TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.7F)).setAlwaysOnTop();
         }
 
@@ -75,7 +77,7 @@ public final class LootRenderer {
             if (g.from != null) {
                 Gizmos.line(g.from, center, (alpha << 24) | 0x50FFB0, 1.6F).setAlwaysOnTop();
             }
-            Gizmos.billboardText(String.format("§a吸走 §f%s §7%.1fs", g.label, remain * glowLife / 1000.0F),
+            Gizmos.billboardText(String.format(Lang.tr("§a吸走 §f%s §7%.1fs"), g.label, remain * glowLife / 1000.0F),
                 center.add(0, 0.9, 0), TextGizmo.Style.forColorAndCentered(0xFFB0FFD0).withScale(0.7F)).setAlwaysOnTop();
         }
     }

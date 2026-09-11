@@ -1,5 +1,7 @@
 package dev.soityy.trajectorylens.client.render;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import dev.soityy.trajectorylens.client.track.ThreatOverlay;
 
 import dev.soityy.trajectorylens.client.track.ThreatOverlay.Level;
@@ -42,9 +44,9 @@ public final class ThreatRenderer {
             Gizmos.circle(p.add(0, 0.06, 0), t.mob.getBbWidth() * 0.85F,
                 GizmoStyle.strokeAndFill(color, 1.8F, (0x33000000 | (color & 0xFFFFFF)))).setAlwaysOnTop();
             String label = switch (t.level) {
-                case LOCKED -> "§c锁定";
-                case ALERT -> "§6警戒";
-                case UNAWARE -> "§7未察觉";
+                case LOCKED -> Lang.tr("§c锁定");
+                case ALERT -> Lang.tr("§6警戒");
+                case UNAWARE -> Lang.tr("§7未察觉");
             };
             Gizmos.billboardText(label + String.format(" §f%.1fm", t.distance), p.add(0, t.mob.getBbHeight() + 0.45, 0),
                 net.minecraft.gizmos.TextGizmo.Style.forColorAndCentered(0xFFFFFFFF).withScale(0.7F)).setAlwaysOnTop();

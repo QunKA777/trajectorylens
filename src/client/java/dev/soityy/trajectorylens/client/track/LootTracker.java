@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dev.soityy.trajectorylens.client.Lang;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -67,12 +69,18 @@ public final class LootTracker {
         MACHINE("被漏斗吸走", 0xFF40FFD0),
         UNKNOWN("原因未知", 0xFFFFFFFF);
 
-        public final String label;
+        /** Chinese source text, also the translation key in the language files. */
+        public final String key;
         public final int color;
 
-        Reason(String label, int color) {
-            this.label = label;
+        Reason(String key, int color) {
+            this.key = key;
             this.color = color;
+        }
+
+        /** Translated label; resolved on demand so a language change is picked up. */
+        public String label() {
+            return Lang.tr(this.key);
         }
     }
 
@@ -234,7 +242,7 @@ public final class LootTracker {
     }
 
     public String summary() {
-        return String.format("失踪溯源=%s 共%d: 岩浆%d 火焰%d 仙人掌%d 虚空%d 超时%d 爆炸%d 合并%d 拾取%d 机器%d 未知%d",
+        return String.format(Lang.tr("失踪溯源=%s 共%d: 岩浆%d 火焰%d 仙人掌%d 虚空%d 超时%d 爆炸%d 合并%d 拾取%d 机器%d 未知%d"),
             this.on ? "on" : "off", total(),
             count(Reason.LAVA), count(Reason.FIRE), count(Reason.CACTUS), count(Reason.VOID),
             count(Reason.DESPAWN), count(Reason.EXPLODED), count(Reason.MERGED),
@@ -246,12 +254,12 @@ public final class LootTracker {
         lines.add("[TrajectoryLens] " + summary());
         List<Event> recent = recentEvents();
         if (recent.isEmpty()) {
-            lines.add("[TrajectoryLens] 最近 " + this.markerSeconds + " 秒没有物品消失事件。");
+            lines.add(Lang.tr("[TrajectoryLens] 最近 ") + this.markerSeconds + Lang.tr(" 秒没有物品消失事件。"));
         } else {
             for (Event e : recent) {
                 long ago = (System.currentTimeMillis() - e.millis) / 1000;
-                lines.add(String.format("[TrajectoryLens] %s %s×%d @ (%.0f, %.0f, %.0f) %d 秒前",
-                    e.reason.label, e.itemName, e.count, e.pos.x, e.pos.y, e.pos.z, ago));
+                lines.add(String.format(Lang.tr("[TrajectoryLens] %s %s×%d @ (%.0f, %.0f, %.0f) %d 秒前"),
+                    e.reason.label(), e.itemName, e.count, e.pos.x, e.pos.y, e.pos.z, ago));
             }
         }
         return lines;
@@ -322,7 +330,7 @@ public final class LootTracker {
                         var pl = Minecraft.getInstance().player;
                         if (pl != null) {
                             pl.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                                "[TrajectoryLens] ⚠ " + w.name + " 即将消失(还剩约 " + (remaining / 20) + " 秒),快去捡!"));
+                                "[TrajectoryLens] ⚠ " + w.name + Lang.tr(" 即将消失(还剩约 ") + (remaining / 20) + Lang.tr(" 秒),快去捡!")));
                         }
                     }
                 }
