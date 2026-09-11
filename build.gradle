@@ -1,0 +1,72 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = project.version
+group = project.group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    // Loom adds the essential maven repositories automatically (26.2 is unobfuscated: no remap step).
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "trajectorylens" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    // 26.2 + Loom 1.17: plain `implementation` (unobfuscated game, no modImplementation remapping)
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+processResources {
+    def version = project.version
+    inputs.property "version", version
+    filesMatching("fabric.mod.json") {
+        expand "version": version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 25
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+// Unit tests here are pure logic (no game classes at runtime): strip the huge
+// game/runtime classpath so the test worker stays small and starts reliably on Windows.
+configurations.testRuntimeClasspath {
+    exclude group: 'com.mojang'
+    exclude group: 'org.lwjgl'
+    exclude group: 'net.fabricmc'
+    exclude group: 'org.joml'
+    exclude group: 'it.unimi.dsi'
+    exclude group: 'io.netty'
+}
+
+test {
+    useJUnitPlatform()
+    maxHeapSize = '512m'
+}
+
+

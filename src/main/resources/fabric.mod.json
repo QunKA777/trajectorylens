@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "trajectorylens",
+  "version": "${version}",
+  "name": "Trajectory Lens",
+  "description": "Client-side trajectory prediction for items, projectiles, explosions and item logistics: glass-like translucent paths, blast warnings, causal-chain forecasts, hopper jam detection and lost-item provenance. No particles, no block changes, no packets sent to the server.",
+  "authors": ["soityy"],
+  "contact": {
+    "homepage": "https://github.com/soityy/trajectorylens",
+    "sources": "https://github.com/soityy/trajectorylens",
+    "issues": "https://github.com/soityy/trajectorylens/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/trajectorylens/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["dev.soityy.trajectorylens.TrajectoryLensMod"],
+    "client": ["dev.soityy.trajectorylens.client.TrajectoryLensClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

@@ -1,0 +1,29 @@
+# Gradle / Loom
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Dev run directory (dedicated server / client launcher output)
+run/
+logs/
+crash-reports/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+bin/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+*.bak
